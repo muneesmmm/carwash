@@ -1,4 +1,5 @@
 const Vehicle = require("../modals/vehicleModel");
+const WashHistory = require("../modals/washHistory");
 async function addVehicle(req, res) {
   try {
     console.log(req.body);
@@ -17,6 +18,30 @@ async function addVehicle(req, res) {
     });
     // Save the transaction to the database
     await vehicle.save();
+
+    res.status(201).json({ message: "Vehicle registered successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to register Vehicle" });
+  }
+}
+async function addWash(req, res) {
+  try {
+    console.log(req.body);
+    const {
+      vehicle,
+      staff,
+      washDate
+    } = req.body;
+    
+    // Save payment data to MongoDB
+    const wash = new WashHistory({
+      vehicle,
+      staff,
+      washDate
+    });
+    // Save the transaction to the database
+    await wash.save();
 
     res.status(201).json({ message: "Vehicle registered successfully" });
   } catch (error) {
@@ -52,6 +77,32 @@ async function getVehicleById(req, res) {
     res.status(500).json({ message: "Vehicle not found" });
   }
 }
+async function getWashesByVehicle(req, res) {
+  try {
+    var { vehicle } = req.params;
+    const washes = await WashHistory.find({vehicle}); 
+    if (washes) {
+      res.status(201).json({ message: "success", data: washes });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "not found" });
+  }
+}
+async function getWashesByStaffId(req, res) {
+  try {
+    var { staff } = req.params;
+    const washes = await WashHistory.find({staff});
+    if (washes) {
+      res.status(201).json({ message: "success", data: washes });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "not found" });
+  }
+}
 async function deleteVehicleById(req, res) {
   try {
     var { id } = req.params;
@@ -69,10 +120,25 @@ async function deleteVehicleById(req, res) {
     res.status(500).json({ message: "Transaction not found" });
   }
 }
-
+async function getWashes(req, res) {
+  try {
+    const currentWashes = await WashHistory.find();
+    if (currentWashes) {
+      res.status(201).json({ message: "success", data: currentWashes });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "not found" });
+  }
+}
 module.exports = {
   addVehicle,
   getVehicle,
   getVehicleById,
   deleteVehicleById,
+  addWash,
+  getWashesByStaffId,
+  getWashes,
+  getWashesByVehicle
 };

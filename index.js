@@ -72,7 +72,7 @@ app.post(
   "/delete-transactions/:id",
   transactionController.deleteTransactionById
 );
-app.post("/create-vehicle", vehicleController.addVehicle);;
+app.post("/create-vehicle", vehicleController.addVehicle);
 app.post(
   "/delete-vehicle/:id",
   vehicleController.deleteVehicleById
@@ -89,6 +89,10 @@ app.post("/get-plan/:id", planController.getPlanById);
 app.post("/get-package/:id", packageController.getPackageById);
 app.post("/get-package", packageController.getPackages);
 app.post("/get-customer/:number", customerController.getCustomer);
+app.post("/create-wash", vehicleController.addWash);
+app.post("/get-washes/:staff", vehicleController.getWashesByStaffId);
+app.post("/get-washes", vehicleController.getWashes);
+app.post("/get-vehicle-washes/:vehicle", vehicleController.getWashesByVehicle);
 
 
 app.listen(port, () => {
