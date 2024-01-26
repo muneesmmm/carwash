@@ -1,3 +1,4 @@
+const Package = require("../modals/packageModel");
 const Vehicle = require("../modals/vehicleModel");
 const WashHistory = require("../modals/washHistory");
 async function addVehicle(req, res) {
@@ -27,26 +28,66 @@ async function addVehicle(req, res) {
 }
 async function addWash(req, res) {
   try {
-    console.log(req.body);
     const {
       vehicle,
       staff,
       washDate
     } = req.body;
-    
+    let { package } = req.params;
+    const existingPackage = await Package.findById(package);
+    if (!existingPackage) {
+      return res.status(404).json({ error: 'Package not found' });
+    }
+
+    // Update fields based on the provided data
+    existingPackage.remainingWashes = existingPackage.remainingWashes-1;
+    const updatedPackage = await existingPackage.save();
     // Save payment data to MongoDB
     const wash = new WashHistory({
       vehicle,
       staff,
-      washDate
+      washDate,
+      washType:"Wash"
     });
     // Save the transaction to the database
     await wash.save();
 
-    res.status(201).json({ message: "Vehicle registered successfully" });
+    res.status(201).json({ message: "wash added successfully",updatedPackage:updatedPackage });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to register Vehicle" });
+    res.status(500).json({ message: "Failed" });
+  }
+}
+async function interiorWash(req, res) {
+  try {
+    const {
+      vehicle,
+      staff,
+      washDate
+    } = req.body;
+    let { package } = req.params;
+    const existingPackage = await Package.findById(package);
+    if (!existingPackage) {
+      return res.status(404).json({ error: 'Package not found' });
+    }
+
+    // Update fields based on the provided data
+    existingPackage.remainingInteriors = existingPackage.remainingInteriors-1;
+    const updatedPackage = await existingPackage.save();
+    // Save payment data to MongoDB
+    const wash = new WashHistory({
+      vehicle,
+      staff,
+      washDate,
+      washType:"Interior"
+    });
+    // Save the transaction to the database
+    await wash.save();
+
+    res.status(201).json({ message: "interior wash successfully",updatedPackage:updatedPackage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed" });
   }
 }
 
@@ -140,5 +181,6 @@ module.exports = {
   addWash,
   getWashesByStaffId,
   getWashes,
-  getWashesByVehicle
+  getWashesByVehicle,
+  interiorWash
 };
