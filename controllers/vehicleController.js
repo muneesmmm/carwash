@@ -104,6 +104,35 @@ async function getVehicle(req, res) {
     res.status(500).json({ message: "Failed to register Vehicle" });
   }
 }
+async function getVehiclesToWash(req, res) {
+  try {
+    const currentDate = new Date();
+    const packages = await Package.find({
+      remainingWashes: { $gt: 0 },
+      remainingInteriors: { $gt: 0 },
+      endDate: { $gte: currentDate },
+    }).populate({
+      path: "customer",
+      populate: {
+        path: "vehicles",
+        model: "Vehicle", // Replace with your Vehicle model name
+      }, 
+    })
+    if (packages) {
+      const vehicles = packages.reduce((result, pack) => {
+        if (pack.customer && pack.customer.vehicles) {
+          result.push(...pack.customer.vehicles);
+        }
+        return result;
+      }, []);
+      res.status(201).json({ message: "success", data: vehicles });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "not Found" });
+  }
+}
 async function getVehicleById(req, res) {
   try {
     var { id } = req.params;
@@ -182,5 +211,6 @@ module.exports = {
   getWashesByStaffId,
   getWashes,
   getWashesByVehicle,
-  interiorWash
+  interiorWash,
+  getVehiclesToWash
 };
