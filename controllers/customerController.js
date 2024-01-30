@@ -158,6 +158,13 @@ async function getCustomer(req, res) {
       const customer = await Customer.findById(vehicle.owner)
       .populate("vehicles")
       .populate("selectedPackage")
+      .populate({
+        path: "selectedPackage",
+        populate: {
+          path: "plan",
+          model: "Plan", // Replace with your Vehicle model name
+        }
+      })
       .exec();
 
     if (!customer) {
