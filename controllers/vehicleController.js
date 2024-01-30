@@ -173,6 +173,33 @@ async function getWashesByStaffId(req, res) {
     res.status(500).json({ message: "not found" });
   }
 }
+async function getWashesByDateForStaff(req, res) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set the time to the beginning of the day
+  
+  try {
+    const { staff } = req.params;
+    
+    // Find washes for the specified staff and current date
+    const washes = await WashHistory.find({
+      staff: staff,
+      washDate: {
+        $gte: today,  // Greater than or equal to the beginning of the day
+        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)  // Less than the beginning of the next day
+      }
+    });
+  
+    if (washes.length > 0) {
+      res.status(200).json({ message: "success", data: washes,status:true });
+    } else {
+      res.status(200).json({ message: "No wash history found for the specified staff on the current date",status:false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message,status:false });
+  }
+  
+}
 async function deleteVehicleById(req, res) {
   try {
     var { id } = req.params;
@@ -212,5 +239,6 @@ module.exports = {
   getWashes,
   getWashesByVehicle,
   interiorWash,
-  getVehiclesToWash
+  getVehiclesToWash,
+  getWashesByDateForStaff
 };

@@ -96,6 +96,7 @@ app.post("/get-washes/:staff", vehicleController.getWashesByStaffId);
 app.post("/get-washes", vehicleController.getWashes);
 app.post("/get-vehicle-washes/:vehicle", vehicleController.getWashesByVehicle);
 app.post("/vehicles-to-wash", vehicleController.getVehiclesToWash);
+app.post("/today-washes/:staff", vehicleController.getWashesByDateForStaff);
 
 
 app.listen(port, () => {
