@@ -19,7 +19,7 @@ const port = 8080;
 
 app.use(
   cors({
-    origin: "http://localhost:60350", // Replace with your frontend's origin URL
+    origin: "http://localhost:3000", // Replace with your frontend's origin URL
     allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
@@ -58,6 +58,7 @@ app.get("/protected", authHelpers.authenticateToken, (req, res) => {
     user: req.user,
   });
 });
+app.post("/get-customers", customerController.getCustomers);
 app.post("/add-category", categoryController.addCategory);
 app.post("/get-category", categoryController.getCategory);
 app.post("/get-category/:id", categoryController.getCategoryById);

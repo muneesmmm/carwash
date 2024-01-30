@@ -154,7 +154,8 @@ async function getCustomer(req, res) {
     // Find the customer where the vehicles array contains the specified vehicle number
     const vehicleNumber = req.params.number;
     const vehicle = await getVehicleByNumber(vehicleNumber);
-    const customer = await Customer.findById(vehicle.owner)
+    if(vehicle){
+      const customer = await Customer.findById(vehicle.owner)
       .populate("vehicles")
       .populate("selectedPackage")
       .exec();
@@ -169,24 +170,44 @@ async function getCustomer(req, res) {
 
     console.log("Found customer:", customer);
     res.json({ data: customer, status: true, message: "Found customer" });
+    }else{
+      res.json({
+        status: false,
+        message: "Customer not found for the given vehicle number",
+      });
+    }
   } catch (error) {
     console.error("Error finding customer by vehicle number:", error);
     throw error;
   }
 }
-
+async function getCustomers(req, res) {
+  try {
+    // Find the user in the database
+    const customer = await Customer.find();
+    // Generate a new JWT token using the helper function
+    res.json({ message: "Registered Customer", customer });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "No Customer" });
+  }
+}
 module.exports = {
   addCustomer,
   addCar,
   removeCar,
   getCustomerById,
   getCustomer,
+  getCustomers
 };
 async function getVehicleByNumber(number) {
   try {
-    const customer = await Vehicle.findOne({ vehicleNumber: number });
-    console.log(customer);
-    return customer;
+    const vehicle = await Vehicle.findOne({ vehicleNumber: number });
+    if(vehicle){
+      return vehicle;
+    }else{
+      return null
+    }
   } catch (error) {
     console.error("Error finding customer by vehicle number:", error);
     throw error;
