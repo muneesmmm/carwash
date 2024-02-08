@@ -5,7 +5,7 @@ const authHelpers = require("../helpers/auth");
 const { uploadFileToS3 } = require("../helpers/s3Upload");
 async function registerUser(req, res) {
   try {
-    const { username, name, password, email, phone, location } = req.body;
+    const { username, name, password, email, phone, location ,role} = req.body;
 
     // Check if the username already exists
     const existingUser = await User.findOne({ username });
@@ -27,6 +27,7 @@ async function registerUser(req, res) {
       email,
       phone,
       location,
+      role,
       password: hashedPassword
       // avatar: avatarUrl,
       // Assuming you store the S3 file URL in the 'location' property
@@ -47,6 +48,7 @@ async function updateUser(req, res) {
       name,
       email,
       phone,
+      role,
       password,
     } = req.body;
     const { id } = req.params;
@@ -62,6 +64,7 @@ async function updateUser(req, res) {
     existingUser.name = name || existingUser.name;
     existingUser.email = email || existingUser.email;
     existingUser.phone = phone || existingUser.phone;
+    existingUser.role = role || existingUser.role;
     existingUser.password = password || existingUser.password;
 
 
@@ -130,6 +133,30 @@ async function getUsers(req, res) {
     res.status(500).json({ message: "No Users" });
   }
 }
+async function getUserbyId(req, res) {
+  try {
+    // Find the user in the database
+    const { id } = req.body;
+    const user = await User.findById(id);
+
+    res.json({ message: "Registered User", user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "No Users" });
+  }
+}
+async function deleteUserbyId(req, res) {
+  try {
+    // Find the user in the database
+    const { id } = req.body;
+    const user = await User.deleteOne({'_id':id});
+
+    res.json({ message: "User delete success", });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "No Users" });
+  }
+}
 async function updatePayment(req, res) {
   try {
     const { paymentStatus } = req.body;
@@ -163,7 +190,7 @@ async function updatePayment(req, res) {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to register user" });
-  }
+  } 
 }
 
 module.exports = {
@@ -173,4 +200,6 @@ module.exports = {
   updateUser,
   updateAvatar,
   updatePayment,
+  getUserbyId,
+  deleteUserbyId
 };

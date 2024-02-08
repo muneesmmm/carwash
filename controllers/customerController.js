@@ -41,7 +41,7 @@ async function addCustomer(req, res) {
       customer: newUser._id,
       plan: selectedPlan,
       remainingWashes: existingPlan.totalWashes,
-      remainingInteriors: existingPlan.totalWashes,
+      remainingInteriors: existingPlan.totalInteriors,
       startDate,
       endDate,
     });

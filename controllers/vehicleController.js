@@ -52,10 +52,10 @@ async function addWash(req, res) {
     // Save the transaction to the database
     await wash.save();
 
-    res.status(201).json({ message: "wash added successfully",updatedPackage:updatedPackage });
+    res.status(201).json({ message: "wash added successfully",updatedPackage:updatedPackage,staus:true });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed" });
+    res.status(500).json({ message: "Failed",staus:false });
   }
 }
 async function interiorWash(req, res) {
@@ -84,10 +84,10 @@ async function interiorWash(req, res) {
     // Save the transaction to the database
     await wash.save();
 
-    res.status(201).json({ message: "interior wash successfully",updatedPackage:updatedPackage });
+    res.status(201).json({ message: "interior wash successfully",updatedPackage:updatedPackage,staus:true });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed" });
+    res.status(500).json({ message: "Failed",staus:false });
   }
 }
 
@@ -163,7 +163,7 @@ async function getWashesByVehicle(req, res) {
 async function getWashesByStaffId(req, res) {
   try {
     var { staff } = req.params;
-    const washes = await WashHistory.find({staff});
+    const washes = await WashHistory.find({staff}).populate('vehicle');
     if (washes) {
       res.status(201).json({ message: "success", data: washes });
       return;
@@ -187,7 +187,7 @@ async function getWashesByDateForStaff(req, res) {
         $gte: today,  // Greater than or equal to the beginning of the day
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)  // Less than the beginning of the next day
       }
-    });
+    }).populate('vehicle');
   
     if (washes.length > 0) {
       res.status(200).json({ message: "success", data: washes,status:true });

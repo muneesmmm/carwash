@@ -15,11 +15,11 @@ const uploadHelper = require("./helpers/s3Upload");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-const port = 8080;
+const port = 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with your frontend's origin URL
+    origin: "http://localhost:8080", // Replace with your frontend's origin URL
     allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
@@ -48,6 +48,8 @@ app.post(
 
 app.post("/login", userController.loginUser);
 app.post("/get-users", userController.getUsers);
+app.  post("/getuser", userController.getUserbyId);
+app.  post("/delete-user", userController.deleteUserbyId);
 app.post("/update/:id", userController.updateUser);
 app.post("/update-payment/:id", userController.updatePayment);
 app.post("/update-avatar/:id",uploadHelper.upload.single("avatar"), userController.updateAvatar);
