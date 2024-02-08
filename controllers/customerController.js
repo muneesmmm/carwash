@@ -153,31 +153,37 @@ async function getCustomer(req, res) {
   try {
     // Find the customer where the vehicles array contains the specified vehicle number
     const vehicleNumber = req.params.number;
+    const washStatus = true;
+    const interiorStatus = true;
     const vehicle = await getVehicleByNumber(vehicleNumber);
-    if(vehicle){
+    if (vehicle) {
       const customer = await Customer.findById(vehicle.owner)
-      .populate("vehicles")
-      .populate("selectedPackage")
-      .populate({
-        path: "selectedPackage",
-        populate: {
-          path: "plan",
-          model: "Plan", // Replace with your Vehicle model name
-        }
-      })
-      .exec();
+        .populate("vehicles")
+        .populate("selectedPackage")
+        .populate({
+          path: "selectedPackage",
+          populate: {
+            path: "plan",
+            model: "Plan", // Replace with your Vehicle model name
+          }
+        })
+        .exec();
 
-    if (!customer) {
-      console.log("Customer not found for the given vehicle number");
-      res.json({
-        status: false,
-        message: "Customer not found for the given vehicle number",
-      });
-    }
-
-    console.log("Found customer:", customer);
-    res.json({ data: customer, status: true, message: "Found customer" });
-    }else{
+      if (!customer) {
+        console.log("Customer not found for the given vehicle number");
+        res.json({
+          status: false,
+          message: "Customer not found for the given vehicle number",
+        });
+      }
+      if(customer.selectedPackage){
+        let selectedPackage = customer.selectedPackage;
+        selectedPackage.remainingWashes<=0?washStatus=false:washStatus=true
+        selectedPackage.remainingInteriors<=0?interiorStatus=false:interiorStatus=true
+      }
+      console.log("Found customer:", customer);
+      res.json({ data: customer, status: true, message: "Found customer",washStatus:washStatus,interiorStatus:interiorStatus });
+    } else {
       res.json({
         status: false,
         message: "Customer not found for the given vehicle number",
@@ -191,7 +197,17 @@ async function getCustomer(req, res) {
 async function getCustomers(req, res) {
   try {
     // Find the user in the database
-    const customer = await Customer.find();
+    const customer = await Customer.find()
+      .populate("vehicles")
+      .populate("selectedPackage")
+      .populate({
+        path: "selectedPackage",
+        populate: {
+          path: "plan",
+          model: "Plan", // Replace with your Vehicle model name
+        }
+      })
+      .exec();
     // Generate a new JWT token using the helper function
     res.json({ message: "Registered Customer", customer });
   } catch (error) {
@@ -210,9 +226,9 @@ module.exports = {
 async function getVehicleByNumber(number) {
   try {
     const vehicle = await Vehicle.findOne({ vehicleNumber: number });
-    if(vehicle){
+    if (vehicle) {
       return vehicle;
-    }else{
+    } else {
       return null
     }
   } catch (error) {

@@ -40,22 +40,27 @@ async function addWash(req, res) {
     }
 
     // Update fields based on the provided data
-    existingPackage.remainingWashes = existingPackage.remainingWashes-1;
-    const updatedPackage = await existingPackage.save();
-    // Save payment data to MongoDB
-    const wash = new WashHistory({
-      vehicle,
-      staff,
-      washDate,
-      washType:"Wash"
-    });
-    // Save the transaction to the database
-    await wash.save();
+    if (existingPackage.remainingWashes > 0) {
+      existingPackage.remainingWashes = existingPackage.remainingWashes - 1
+      const updatedPackage = await existingPackage.save();
+      // Save payment data to MongoDB
+      const wash = new WashHistory({
+        vehicle,
+        staff,
+        washDate,
+        washType: "Wash"
+      });
+      // Save the transaction to the database
+      await wash.save();
+      res.status(201).json({ message: "wash added successfully", updatedPackage: updatedPackage, staus: true });
 
-    res.status(201).json({ message: "wash added successfully",updatedPackage:updatedPackage,staus:true });
+    } else {
+      res.status(201).json({ message: "no wash found", staus: false });
+
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed",staus:false });
+    res.status(500).json({ message: "Failed", staus: false });
   }
 }
 async function interiorWash(req, res) {
@@ -70,24 +75,26 @@ async function interiorWash(req, res) {
     if (!existingPackage) {
       return res.status(404).json({ error: 'Package not found' });
     }
+    if (existingPackage.remainingInteriors > 0) {
+      existingPackage.remainingInteriors = existingPackage.remainingInteriors - 1;
+      const updatedPackage = await existingPackage.save();
+      // Save payment data to MongoDB
+      const wash = new WashHistory({
+        vehicle,
+        staff,
+        washDate,
+        washType: "Interior"
+      });
+      // Save the transaction to the database
+      await wash.save();
+      res.status(201).json({ message: "interior wash successfully", updatedPackage: updatedPackage, staus: true });
 
-    // Update fields based on the provided data
-    existingPackage.remainingInteriors = existingPackage.remainingInteriors-1;
-    const updatedPackage = await existingPackage.save();
-    // Save payment data to MongoDB
-    const wash = new WashHistory({
-      vehicle,
-      staff,
-      washDate,
-      washType:"Interior"
-    });
-    // Save the transaction to the database
-    await wash.save();
-
-    res.status(201).json({ message: "interior wash successfully",updatedPackage:updatedPackage,staus:true });
+    } else {
+      res.status(201).json({ message: "interior wash not found", staus: false });
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed",staus:false });
+    res.status(500).json({ message: "Failed", staus: false });
   }
 }
 
@@ -116,7 +123,7 @@ async function getVehiclesToWash(req, res) {
       populate: {
         path: "vehicles",
         model: "Vehicle", // Replace with your Vehicle model name
-      }, 
+      },
     })
     if (packages) {
       const vehicles = packages.reduce((result, pack) => {
@@ -150,7 +157,7 @@ async function getVehicleById(req, res) {
 async function getWashesByVehicle(req, res) {
   try {
     var { vehicle } = req.params;
-    const washes = await WashHistory.find({vehicle}); 
+    const washes = await WashHistory.find({ vehicle });
     if (washes) {
       res.status(201).json({ message: "success", data: washes });
       return;
@@ -163,7 +170,7 @@ async function getWashesByVehicle(req, res) {
 async function getWashesByStaffId(req, res) {
   try {
     var { staff } = req.params;
-    const washes = await WashHistory.find({staff}).populate('vehicle');
+    const washes = await WashHistory.find({ staff }).populate('vehicle');
     if (washes) {
       res.status(201).json({ message: "success", data: washes });
       return;
@@ -176,10 +183,10 @@ async function getWashesByStaffId(req, res) {
 async function getWashesByDateForStaff(req, res) {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Set the time to the beginning of the day
-  
+
   try {
     const { staff } = req.params;
-    
+
     // Find washes for the specified staff and current date
     const washes = await WashHistory.find({
       staff: staff,
@@ -188,17 +195,17 @@ async function getWashesByDateForStaff(req, res) {
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)  // Less than the beginning of the next day
       }
     }).populate('vehicle');
-  
+
     if (washes.length > 0) {
-      res.status(200).json({ message: "success", data: washes,status:true });
+      res.status(200).json({ message: "success", data: washes, status: true });
     } else {
-      res.status(200).json({ message: "No wash history found for the specified staff on the current date",status:false });
+      res.status(200).json({ message: "No wash history found for the specified staff on the current date", status: false });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message,status:false });
+    res.status(500).json({ message: "Internal Server Error", error: error.message, status: false });
   }
-  
+
 }
 async function deleteVehicleById(req, res) {
   try {
