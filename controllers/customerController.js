@@ -178,8 +178,12 @@ async function getCustomer(req, res) {
       }
       if(customer.selectedPackage){
         let selectedPackage = customer.selectedPackage;
-        selectedPackage.remainingWashes<=0?washStatus=false:washStatus=true
-        selectedPackage.remainingInteriors<=0?interiorStatus=false:interiorStatus=true
+        if(selectedPackage.remainingWashes<=0){
+          washStatus=false
+        }
+        if(selectedPackage.remainingInteriors<=0){
+          interiorStatus=false
+        }
       }
       console.log("Found customer:", customer);
       res.json({ data: customer, status: true, message: "Found customer",washStatus:washStatus,interiorStatus:interiorStatus });
@@ -215,13 +219,73 @@ async function getCustomers(req, res) {
     res.status(500).json({ message: "No Customer" });
   }
 }
+async function createAndUpdatePackage(req, res) {
+  const {userId, newPlanId} = req.body
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Get user details
+    const user = await Customer.findById(userId).session(session);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Get details of the new plan
+    const newPlan = await Plan.findById(newPlanId);
+
+    if (!newPlan) {
+      throw new Error('New plan not found');
+    }
+
+    // Calculate start and end dates for the new package
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + newPlan.duration);
+
+    // Create a new package
+    const newPackage = new Package({
+      customer: userId,
+      plan: newPlanId,
+      remainingWashes: newPlan.totalWashes,
+      remainingInteriors: newPlan.totalInteriors,
+      startDate,
+      endDate,
+    });
+
+    // Save the new package
+    await newPackage.save({ session });
+
+    // Update the user's selected package ID with the ID of the new package
+    user.selectedPackage = newPackage._id;
+    await user.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+    res.json({
+      status: true,
+      message: "Package Updated",package:newPackage,user
+    });
+  } catch (error) {
+    res.json({
+      status: false,
+      message: "Error creating and updating package:",error
+    });
+    console.error('Error creating and updating package:', error);
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+}
+
 module.exports = {
   addCustomer,
   addCar,
   removeCar,
   getCustomerById,
   getCustomer,
-  getCustomers
+  getCustomers,
+  createAndUpdatePackage
 };
 async function getVehicleByNumber(number) {
   try {

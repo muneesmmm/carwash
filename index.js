@@ -92,6 +92,7 @@ app.post("/get-plan/:id", planController.getPlanById);
 app.post("/get-package/:id", packageController.getPackageById);
 app.post("/get-package", packageController.getPackages);
 app.post("/get-customer/:number", customerController.getCustomer);
+app.post("/renew-package", customerController.createAndUpdatePackage);
 app.post("/complete-wash/:package", vehicleController.addWash);
 app.post("/complete-interior/:package", vehicleController.interiorWash);
 app.post("/get-washes/:staff", vehicleController.getWashesByStaffId);
