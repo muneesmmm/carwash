@@ -52,15 +52,15 @@ async function addWash(req, res) {
       });
       // Save the transaction to the database
       await wash.save();
-      res.status(201).json({ message: "wash added successfully", updatedPackage: updatedPackage, staus: true });
+      res.status(201).json({ message: "wash added successfully", updatedPackage: updatedPackage, status: true });
 
     } else {
-      res.status(201).json({ message: "no wash found", staus: false });
+      res.status(201).json({ message: "no wash found", status: false });
 
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed", staus: false });
+    res.status(500).json({ message: "Failed", status: false });
   }
 }
 async function interiorWash(req, res) {
@@ -87,14 +87,14 @@ async function interiorWash(req, res) {
       });
       // Save the transaction to the database
       await wash.save();
-      res.status(201).json({ message: "interior wash successfully", updatedPackage: updatedPackage, staus: true });
+      res.status(201).json({ message: "interior wash successfully", updatedPackage: updatedPackage, status: true });
 
     } else {
-      res.status(201).json({ message: "interior wash not found", staus: false });
+      res.status(201).json({ message: "interior wash not found", status: false });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed", staus: false });
+    res.status(500).json({ message: "Failed", status: false });
   }
 }
 
@@ -170,7 +170,15 @@ async function getWashesByVehicle(req, res) {
 async function getWashesByStaffId(req, res) {
   try {
     var { staff } = req.params;
-    const washes = await WashHistory.find({ staff }).populate('vehicle');
+    const washes = await WashHistory.find({ staff })
+      .populate('vehicle')
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "owner",
+          model: "Customer", // Replace with your Vehicle model name
+        }
+      })
     if (washes) {
       res.status(201).json({ message: "success", data: washes });
       return;
@@ -194,7 +202,15 @@ async function getWashesByDateForStaff(req, res) {
         $gte: today,  // Greater than or equal to the beginning of the day
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)  // Less than the beginning of the next day
       }
-    }).populate('vehicle');
+    }).populate('vehicle')
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "owner",
+          model: "Customer", // Replace with your Vehicle model name
+        }
+      })
+
 
     if (washes.length > 0) {
       res.status(200).json({ message: "success", data: washes, status: true });
