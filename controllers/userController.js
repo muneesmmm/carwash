@@ -32,6 +32,8 @@ async function registerUser(req, res) {
       // avatar: avatarUrl,
       // Assuming you store the S3 file URL in the 'location' property
     });
+    const userId = await generateStaffID();
+    user.staffId = userId;
     const userData = await user.save();
     const token = authHelpers.generateToken(userData._id);
     res
@@ -203,3 +205,25 @@ module.exports = {
   getUserbyId,
   deleteUserbyId
 };
+async function generateStaffID() {
+  try {
+    // Find the latest staff record to get the current ID
+    const latestStaff = await User.findOne().sort({ _id: -1 }).exec();
+    
+    let currentID = 1; // Default ID if no existing staff
+    
+    if (latestStaff && latestStaff.staffId) {
+      // Get the current ID from the latest staff record
+      currentID = parseInt(latestStaff.staffId.substr(3)) + 1;
+    }
+
+    // Generate the new staff ID (you can adjust the format as needed)
+    const newID = `emp${currentID.toString().padStart(4, '0')}`;
+    
+    // Return the new ID
+    return newID;
+  } catch (error) {
+    console.error('Error generating staff ID:', error);
+    throw error;
+  }
+}
