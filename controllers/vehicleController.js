@@ -1,6 +1,7 @@
 const Package = require("../modals/packageModel");
 const Vehicle = require("../modals/vehicleModel");
 const WashHistory = require("../modals/washHistory");
+const moment = require('moment-timezone');
 async function addVehicle(req, res) {
   try {
     console.log(req.body);
@@ -28,77 +29,86 @@ async function addVehicle(req, res) {
 }
 async function addWash(req, res) {
   try {
-    const {
-      vehicle,
-      staff,
-      washDate
-    } = req.body;
-    let { package } = req.params;
-    console.log(req.body,package);
+    const { vehicle, staff, washDate } = req.body;
+    const { package } = req.params; // Renamed variable for clarity
+    console.log(req.body, package);
+
     const existingPackage = await Package.findById(package);
     if (!existingPackage) {
-      res.status(200).json({ message: "Package not found", status: false });
+      return res.status(200).json({ message: "Package not found", status: false });
     }
 
-    // Update fields based on the provided data
     if (existingPackage.remainingWashes > 0) {
-      existingPackage.remainingWashes = existingPackage.remainingWashes - 1
+      existingPackage.remainingWashes--;
       const updatedPackage = await existingPackage.save();
+
+      // Set the timezone to India (Asia/Kolkata)
+      moment.tz.setDefault('Asia/Kolkata');
+
+      // Get the current date and time in India
+      const currentDateTime = moment().toDate();
+
       // Save payment data to MongoDB
       const wash = new WashHistory({
         vehicle,
         staff,
-        washDate,
+        washDate:currentDateTime, // Use provided washDate or current date/time
         washType: "Wash"
       });
+
       // Save the transaction to the database
       await wash.save();
-      res.status(200).json({ message: "wash added successfully", updatedPackage: updatedPackage, status: true });
 
+      return res.status(200).json({ message: "Wash added successfully", updatedPackage, status: true });
     } else {
-      res.status(200).json({ message: "no wash found", status: false });
-
+      return res.status(200).json({ message: "No washes remaining", status: false });
     }
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "Failed", status: false });
+    return res.status(200).json({ message: "Failed to add wash", status: false });
   }
 }
 async function interiorWash(req, res) {
   try {
-    const {
-      vehicle,
-      staff,
-      washDate
-    } = req.body;
-    let { package } = req.params;
+    const { vehicle, staff } = req.body;
+    let { packageId } = req.params;
     console.log(req.body);
-    const existingPackage = await Package.findById(package);
+
+    const existingPackage = await Package.findById(packageId);
     if (!existingPackage) {
-      return res.status(200).json({ error: 'Package not found' });
+      return res.status(404).json({ error: 'Package not found' });
     }
+
     if (existingPackage.remainingInteriors > 0) {
-      existingPackage.remainingInteriors = existingPackage.remainingInteriors - 1;
-      const updatedPackage = await existingPackage.save();
-      // Save payment data to MongoDB 
+      existingPackage.remainingInteriors--;
+
+      // Set the timezone to India (Asia/Kolkata)
+      moment.tz.setDefault('Asia/Kolkata');
+
+      // Get the current date and time in India
+      const currentDateTime = moment().toDate();
+
+      // Save payment data to MongoDB
       const wash = new WashHistory({
         vehicle,
         staff,
-        washDate,
+        washDate: currentDateTime, // Use current date/time in IST
         washType: "Interior"
       });
+
       // Save the transaction to the database
       await wash.save();
-      res.status(200).json({ message: "interior wash successfully", updatedPackage: updatedPackage, status: true });
-
+      
+      return res.status(200).json({ message: "Interior wash successfully", updatedPackage, status: true });
     } else {
-      res.status(200).json({ message: "interior wash not found", status: false });
+      return res.status(200).json({ message: "No interior washes remaining", status: false });
     }
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "Failed", status: false });
+    return res.status(500).json({ message: "Failed", status: false });
   }
 }
+
 
 async function getVehicle(req, res) {
   try {
