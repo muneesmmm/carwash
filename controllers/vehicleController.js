@@ -34,6 +34,7 @@ async function addWash(req, res) {
       washDate
     } = req.body;
     let { package } = req.params;
+    console.log(req.body,package);
     const existingPackage = await Package.findById(package);
     if (!existingPackage) {
       res.status(200).json({ message: "Package not found", status: false });
