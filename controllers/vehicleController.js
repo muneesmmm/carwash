@@ -216,8 +216,9 @@ async function getWashesByStaffId(req, res) {
   }
 }
 async function getWashesByDateForStaff(req, res) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Set the time to the beginning of the day
+  moment.tz.setDefault('Asia/Kolkata');
+  // Get the current date and time in India
+  const today = moment().startOf('day'); // Start of the current day
 
   try {
     const { staff } = req.params;
@@ -226,8 +227,8 @@ async function getWashesByDateForStaff(req, res) {
     const washes = await WashHistory.find({
       staff: staff,
       washDate: {
-        $gte: today,  // Greater than or equal to the beginning of the day
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)  // Less than the beginning of the next day
+        $gte: today.toDate(), // Greater than or equal to the beginning of the day
+        $lt: moment(today).endOf('day').toDate() // Less than the end of the day
       }
     }).populate('vehicle')
       .populate({
@@ -236,20 +237,30 @@ async function getWashesByDateForStaff(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      })
+      });
 
+    if (washes && washes.length > 0) {
+      // Map over the wash history data and format the time for each record
+      const washesWithFormattedTime = washes.map(wash => {
+        // Convert the UTC date to IST using moment-timezone
+        const formattedTime = moment(wash.washDate).tz('Asia/Kolkata').format('hh:mm A');
+        return {
+          ...wash.toObject(),
+          formattedTime
+        };
+      });
 
-    if (washes.length > 0) {
-      res.status(200).json({ message: "success", data: washes, status: true });
+      // Send the response with the formatted time
+      res.status(200).json({ message: "success", data: washesWithFormattedTime, status: true });
     } else {
-      res.status(200).json({ message: "No wash history found for the specified staff on the current date", status: false });
+      res.status(200).json({ message: "No washes found for the given staff ID on the current date", status: false });
     }
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "Internal Server Error", error: error.message, status: false });
+    res.status(500).json({ message: "Internal Server Error", error: error.message, status: false });
   }
-
 }
+
 async function deleteVehicleById(req, res) {
   try {
     var { id } = req.params;
