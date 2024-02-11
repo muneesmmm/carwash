@@ -178,7 +178,7 @@ async function getCustomer(req, res) {
       }
       if (customer.selectedPackage) {
         let selectedPackage = customer.selectedPackage;
-        if (selectedPackage.remainingWashes && selectedPackage.remainingWashes <= 0) {
+        if (electedPackage.remainingWashes === 0) {
           washStatus = false;
         }
         if (selectedPackage.remainingInteriors === 0) {
