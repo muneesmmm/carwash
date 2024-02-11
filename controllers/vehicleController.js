@@ -242,8 +242,10 @@ async function getWashesByDateForStaff(req, res) {
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
       const washesWithFormattedTime = washes.map(wash => {
-        // Convert the UTC date to IST using moment-timezone
-        const formattedTime = moment(wash.washDate).tz('Asia/Kolkata').format('hh:mm A');
+        // Create a Date object from the string
+        const washDate = new Date(wash.washDate);
+        // Convert the Date object to Moment object and format to IST
+        const formattedTime = moment(washDate).tz('Asia/Kolkata').format('hh:mm A');
         return {
           ...wash.toObject(),
           formattedTime
