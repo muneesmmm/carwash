@@ -153,8 +153,8 @@ async function getCustomer(req, res) {
   try {
     // Find the customer where the vehicles array contains the specified vehicle number
     const vehicleNumber = req.params.number;
-    const washStatus = true;
-    const interiorStatus = true;
+    let washStatus = true;
+    let interiorStatus = true;
     const vehicle = await getVehicleByNumber(vehicleNumber);
     if (vehicle) {
       const customer = await Customer.findById(vehicle.owner)
@@ -176,13 +176,13 @@ async function getCustomer(req, res) {
           message: "Customer not found for the given vehicle number",
         });
       }
-      if(customer.selectedPackage){
+      if (customer.selectedPackage) {
         let selectedPackage = customer.selectedPackage;
-        if(selectedPackage.remainingWashes<=0){
-          washStatus=false
+        if (selectedPackage.remainingWashes && selectedPackage.remainingWashes <= 0) {
+          washStatus = false;
         }
-        if(selectedPackage.remainingInteriors<=0){
-          interiorStatus=false
+        if (selectedPackage.remainingInteriors === 0) {
+          interiorStatus = false;
         }
       }
       console.log("Found customer:", customer);
