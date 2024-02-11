@@ -286,17 +286,21 @@ async function deleteVehicleById(req, res) {
 }
 async function getWashes(req, res) {
   try {
-    const currentWashes = await WashHistory.find();
-    if (currentWashes) {
+    const washes = await WashHistory.find();
       // Map over the wash history data and format the time for each record
-      const washesWithFormattedTime = currentWashes.map(wash => {
-        // Convert the UTC date to IST using moment-timezone
-        const formattedTime = moment.utc(wash.washDate).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
-        return {
-          wash,
-          formattedTime
-        };
-      });
+      if (washes && washes.length > 0) {
+        // Map over the wash history data and format the time for each record
+        const washesWithFormattedTime = washes.map(wash => {
+          // Ensure washDate is converted to a Date object
+          const washDate = new Date(wash.washDate);
+          // Parse the date using Moment.js and format it in IST timezone
+          const formattedTime = moment(washDate).tz('Asia/Kolkata').format('hh:mm A');
+          return {
+            ...wash.toObject(),
+            formattedTime
+          };
+        });
+      
 
       // Send the response with the formatted time
       res.status(200).json({ message: "success", data: washesWithFormattedTime });
