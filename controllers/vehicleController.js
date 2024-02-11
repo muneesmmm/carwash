@@ -197,8 +197,8 @@ async function getWashesByStaffId(req, res) {
       // Map over the wash history data and format the time for each record
       const washesWithFormattedTime = washes.map(wash => {
         // Convert the UTC date to IST using moment-timezone
-        const formattedTime = moment.utc(wash.washDate).tz('Asia/Kolkata').format('hh:mm A');
-        wash.formattedTime = formattedTime
+        const utcTime = moment(wash.washDate);
+        const formattedTime = utcTime.clone().tz('Asia/Kolkata').format('hh:mm A');
         return {
           ...wash.toObject(),
           formattedTime
