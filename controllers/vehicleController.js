@@ -65,17 +65,20 @@ async function addWash(req, res) {
 }
 async function interiorWash(req, res) {
   try {
-    const {
-      vehicle,
-      staff,
-      washDate
-    } = req.body;
+    const { vehicle, staff, washDate } = req.body;
     let { package } = req.params;
+
+    // Check if vehicle is provided
+    if (!vehicle) {
+      return res.status(400).json({ error: 'Vehicle is required' });
+    }
+
     console.log(package);
     const existingPackage = await Package.findById(package);
     if (!existingPackage) {
-      return res.status(200).json({ error: 'Package not found' });
+      return res.status(404).json({ error: 'Package not found' });
     }
+
     if (existingPackage.remainingInteriors > 0) {
       existingPackage.remainingInteriors = existingPackage.remainingInteriors - 1;
       const updatedPackage = await existingPackage.save();
@@ -88,16 +91,17 @@ async function interiorWash(req, res) {
       });
       // Save the transaction to the database
       await wash.save();
-      res.status(200).json({ message: "interior wash successfully", updatedPackage: updatedPackage, status: true });
+      return res.status(200).json({ message: "Interior wash successful", updatedPackage, status: true });
 
     } else {
-      res.status(200).json({ message: "interior wash not found", status: false });
+      return res.status(200).json({ message: "No remaining interior washes", status: false });
     }
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "Failed", status: false });
+    return res.status(500).json({ message: "Failed to perform interior wash", status: false });
   }
 }
+
 
 async function getVehicle(req, res) {
   try {
