@@ -81,6 +81,7 @@ async function interiorWash(req, res) {
 
     if (existingPackage.remainingInteriors > 0) {
       existingPackage.remainingInteriors--;
+      const updatedPackage = await existingPackage.save();
 
       // Set the timezone to India (Asia/Kolkata)
       moment.tz.setDefault('Asia/Kolkata');
