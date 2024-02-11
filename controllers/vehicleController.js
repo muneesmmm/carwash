@@ -286,26 +286,34 @@ async function deleteVehicleById(req, res) {
 }
 async function getWashes(req, res) {
   try {
-    const washes = await WashHistory.find();
+    const washes = await WashHistory.find()
+      .populate('vehicle')
+      .populate('staff')
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "owner",
+          model: "Customer", // Replace with your Vehicle model name
+        }
+      });
+
+    if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
-      if (washes && washes.length > 0) {
-        // Map over the wash history data and format the time for each record
-        const washesWithFormattedTime = washes.map(wash => {
-          // Ensure washDate is converted to a Date object
-          const washDate = new Date(wash.washDate);
-          // Parse the date using Moment.js and format it in IST timezone
-          const formattedTime = moment(washDate).tz('Asia/Kolkata').format('hh:mm A');
-          return {
-            ...wash.toObject(),
-            formattedTime
-          };
-        });
-      
+      const washesWithFormattedTime = washes.map(wash => {
+        // Ensure washDate is converted to a Date object
+        const washDate = new Date(wash.washDate);
+        // Parse the date using Moment.js and format it in IST timezone
+        const formattedTime = moment(washDate).tz('Asia/Kolkata').format('hh:mm A');
+        return {
+          ...wash.toObject(),
+          formattedTime
+        };
+      });
 
       // Send the response with the formatted time
       res.status(200).json({ message: "success", data: washesWithFormattedTime });
     } else {
-      res.status(404).json({ message: "Washes not found" });
+      res.status(404).json({ message: "No washes found for the given staff ID" });
     }
   } catch (error) {
     console.error(error);
