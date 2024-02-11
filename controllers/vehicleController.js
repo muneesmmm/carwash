@@ -71,10 +71,10 @@ async function addWash(req, res) {
 async function interiorWash(req, res) {
   try {
     const { vehicle, staff } = req.body;
-    let { packageId } = req.params;
+    let { package } = req.params;
     console.log(req.body);
 
-    const existingPackage = await Package.findById(packageId);
+    const existingPackage = await Package.findById(package);
     if (!existingPackage) {
       return res.status(404).json({ error: 'Package not found' });
     }
@@ -181,7 +181,7 @@ async function getWashesByVehicle(req, res) {
 }
 async function getWashesByStaffId(req, res) {
   try {
-    var { staff } = req.params;
+    const { staff } = req.params;
     const washes = await WashHistory.find({ staff })
       .populate('vehicle')
       .populate({
@@ -190,14 +190,28 @@ async function getWashesByStaffId(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      })
-    if (washes) {
-      res.status(200).json({ message: "success", data: washes });
-      return;
+      });
+
+    if (washes && washes.length > 0) {
+      // Map over the wash history data and format the time for each record
+      const washesWithFormattedTime = washes.map(wash => {
+        // Convert the UTC date to IST using moment-timezone
+        const formattedTime = moment.utc(wash.washDate).tz('Asia/Kolkata').format('hh:mm A');
+        wash.formattedTime = formattedTime
+        return {
+          ...wash.toObject(),
+          formattedTime
+        };
+      });
+
+      // Send the response with the formatted time
+      res.status(200).json({ message: "success", data: washesWithFormattedTime });
+    } else {
+      res.status(404).json({ message: "No washes found for the given staff ID" });
     }
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "not found" });
+    res.status(500).json({ message: "Internal server error" });
   }
 }
 async function getWashesByDateForStaff(req, res) {
@@ -256,12 +270,24 @@ async function getWashes(req, res) {
   try {
     const currentWashes = await WashHistory.find();
     if (currentWashes) {
-      res.status(200).json({ message: "success", data: currentWashes });
-      return;
+      // Map over the wash history data and format the time for each record
+      const washesWithFormattedTime = currentWashes.map(wash => {
+        // Convert the UTC date to IST using moment-timezone
+        const formattedTime = moment.utc(wash.washDate).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+        return {
+          wash,
+          formattedTime
+        };
+      });
+
+      // Send the response with the formatted time
+      res.status(200).json({ message: "success", data: washesWithFormattedTime });
+    } else {
+      res.status(404).json({ message: "Washes not found" });
     }
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "not found" });
+    res.status(500).json({ message: "Internal server error" });
   }
 }
 module.exports = {
