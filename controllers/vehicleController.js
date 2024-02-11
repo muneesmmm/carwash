@@ -20,7 +20,7 @@ async function addVehicle(req, res) {
     // Save the transaction to the database
     await vehicle.save();
 
-    res.status(201).json({ message: "Vehicle registered successfully" });
+    res.status(200).json({ message: "Vehicle registered successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to register Vehicle" });
@@ -52,10 +52,10 @@ async function addWash(req, res) {
       });
       // Save the transaction to the database
       await wash.save();
-      res.status(201).json({ message: "wash added successfully", updatedPackage: updatedPackage, status: true });
+      res.status(200).json({ message: "wash added successfully", updatedPackage: updatedPackage, status: true });
 
     } else {
-      res.status(201).json({ message: "no wash found", status: false });
+      res.status(200).json({ message: "no wash found", status: false });
 
     }
   } catch (error) {
@@ -87,10 +87,10 @@ async function interiorWash(req, res) {
       });
       // Save the transaction to the database
       await wash.save();
-      res.status(201).json({ message: "interior wash successfully", updatedPackage: updatedPackage, status: true });
+      res.status(200).json({ message: "interior wash successfully", updatedPackage: updatedPackage, status: true });
 
     } else {
-      res.status(201).json({ message: "interior wash not found", status: false });
+      res.status(200).json({ message: "interior wash not found", status: false });
     }
   } catch (error) {
     console.error(error);
@@ -103,7 +103,7 @@ async function getVehicle(req, res) {
     const existingVehicle = await Vehicle.find();
     console.log(existingVehicle);
     if (existingVehicle) {
-      res.status(201).json({ message: "success", data: existingVehicle });
+      res.status(200).json({ message: "success", data: existingVehicle });
       return;
     }
   } catch (error) {
@@ -132,7 +132,7 @@ async function getVehiclesToWash(req, res) {
         }
         return result;
       }, []);
-      res.status(201).json({ message: "success", data: vehicles });
+      res.status(200).json({ message: "success", data: vehicles });
       return;
     }
   } catch (error) {
@@ -146,7 +146,7 @@ async function getVehicleById(req, res) {
     const existingVehicle = await Vehicle.findById(id);
     console.log(existingVehicle);
     if (existingVehicle) {
-      res.status(201).json({ message: "success", data: existingVehicle });
+      res.status(200).json({ message: "success", data: existingVehicle });
       return;
     }
   } catch (error) {
@@ -159,7 +159,7 @@ async function getWashesByVehicle(req, res) {
     var { vehicle } = req.params;
     const washes = await WashHistory.find({ vehicle });
     if (washes) {
-      res.status(201).json({ message: "success", data: washes });
+      res.status(200).json({ message: "success", data: washes });
       return;
     }
   } catch (error) {
@@ -180,7 +180,7 @@ async function getWashesByStaffId(req, res) {
         }
       })
     if (washes) {
-      res.status(201).json({ message: "success", data: washes });
+      res.status(200).json({ message: "success", data: washes });
       return;
     }
   } catch (error) {
@@ -229,10 +229,10 @@ async function deleteVehicleById(req, res) {
     const response = await Vehicle.findByIdAndDelete(id);
     console.log(response);
     if (response) {
-      res.status(201).json({ message: "Vehicle deleted", data: response });
+      res.status(200).json({ message: "Vehicle deleted", data: response });
       return;
     } else {
-      res.status(201).json({ message: "Vehicle not found" });
+      res.status(200).json({ message: "Vehicle not found" });
       return;
     }
   } catch (error) {
@@ -244,7 +244,7 @@ async function getWashes(req, res) {
   try {
     const currentWashes = await WashHistory.find();
     if (currentWashes) {
-      res.status(201).json({ message: "success", data: currentWashes });
+      res.status(200).json({ message: "success", data: currentWashes });
       return;
     }
   } catch (error) {
