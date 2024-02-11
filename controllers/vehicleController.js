@@ -36,7 +36,7 @@ async function addWash(req, res) {
     let { package } = req.params;
     const existingPackage = await Package.findById(package);
     if (!existingPackage) {
-      return res.status(404).json({ error: 'Package not found' });
+      res.status(200).json({ message: "Package not found", status: false });
     }
 
     // Update fields based on the provided data
@@ -73,7 +73,7 @@ async function interiorWash(req, res) {
     let { package } = req.params;
     const existingPackage = await Package.findById(package);
     if (!existingPackage) {
-      return res.status(404).json({ error: 'Package not found' });
+      return res.status(200).json({ error: 'Package not found' });
     }
     if (existingPackage.remainingInteriors > 0) {
       existingPackage.remainingInteriors = existingPackage.remainingInteriors - 1;
