@@ -196,9 +196,10 @@ async function getWashesByStaffId(req, res) {
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
       const washesWithFormattedTime = washes.map(wash => {
-        // Convert the UTC date to IST using moment-timezone
-        const utcTime = moment(wash.washDate);
-        const formattedTime = utcTime.clone().tz('Asia/Kolkata').format('hh:mm A');
+        // Ensure washDate is converted to a Date object
+        const washDate = new Date(wash.washDate);
+        // Parse the date using Moment.js and format it in IST timezone
+        const formattedTime = moment(washDate).tz('Asia/Kolkata').format('hh:mm A');
         return {
           ...wash.toObject(),
           formattedTime
@@ -215,6 +216,9 @@ async function getWashesByStaffId(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+
+
 async function getWashesByDateForStaff(req, res) {
   moment.tz.setDefault('Asia/Kolkata');
   // Get the current date and time in India
