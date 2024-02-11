@@ -23,7 +23,7 @@ async function addVehicle(req, res) {
     res.status(200).json({ message: "Vehicle registered successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to register Vehicle" });
+    res.status(200).json({ message: "Failed to register Vehicle" });
   }
 }
 async function addWash(req, res) {
@@ -60,7 +60,7 @@ async function addWash(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed", status: false });
+    res.status(200).json({ message: "Failed", status: false });
   }
 }
 async function interiorWash(req, res) {
@@ -94,7 +94,7 @@ async function interiorWash(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed", status: false });
+    res.status(200).json({ message: "Failed", status: false });
   }
 }
 
@@ -108,7 +108,7 @@ async function getVehicle(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to register Vehicle" });
+    res.status(200).json({ message: "Failed to register Vehicle" });
   }
 }
 async function getVehiclesToWash(req, res) {
@@ -137,7 +137,7 @@ async function getVehiclesToWash(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "not Found" });
+    res.status(200).json({ message: "not Found" });
   }
 }
 async function getVehicleById(req, res) {
@@ -151,7 +151,7 @@ async function getVehicleById(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Vehicle not found" });
+    res.status(200).json({ message: "Vehicle not found" });
   }
 }
 async function getWashesByVehicle(req, res) {
@@ -164,7 +164,7 @@ async function getWashesByVehicle(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "not found" });
+    res.status(200).json({ message: "not found" });
   }
 }
 async function getWashesByStaffId(req, res) {
@@ -185,7 +185,7 @@ async function getWashesByStaffId(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "not found" });
+    res.status(200).json({ message: "not found" });
   }
 }
 async function getWashesByDateForStaff(req, res) {
@@ -219,7 +219,7 @@ async function getWashesByDateForStaff(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message, status: false });
+    res.status(200).json({ message: "Internal Server Error", error: error.message, status: false });
   }
 
 }
@@ -237,7 +237,7 @@ async function deleteVehicleById(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Transaction not found" });
+    res.status(200).json({ message: "Transaction not found" });
   }
 }
 async function getWashes(req, res) {
@@ -249,7 +249,7 @@ async function getWashes(req, res) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "not found" });
+    res.status(200).json({ message: "not found" });
   }
 }
 module.exports = {
