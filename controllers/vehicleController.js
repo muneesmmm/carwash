@@ -71,6 +71,7 @@ async function interiorWash(req, res) {
       washDate
     } = req.body;
     let { package } = req.params;
+    console.log(package);
     const existingPackage = await Package.findById(package);
     if (!existingPackage) {
       return res.status(200).json({ error: 'Package not found' });

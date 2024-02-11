@@ -70,7 +70,7 @@ async function addCar(req, res) {
     const existingUser = await Customer.findById(userId);
 
     if (!existingUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(200).json({ message: "User not found",status:false });
     }
 
     // Create a new vehicle and link it to the user
@@ -88,10 +88,10 @@ async function addCar(req, res) {
     await existingUser.save();
 
     // Respond with the updated user and the newly added vehicle
-    res.json({ user: existingUser, vehicle: newVehicle });
+    res.json({ user: existingUser, vehicle: newVehicle ,status:true});
   } catch (error) {
     console.error("Error adding car:", error);
-    res.status(500).json({ error: error.message });
+    res.status(200).json({ error: error.message,status:false });
   }
 }
 // API endpoint to remove a car for an existing user
