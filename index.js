@@ -15,11 +15,11 @@ const uploadHelper = require("./helpers/s3Upload");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-const port = 8080;
+const port = 80;
 
 app.use(
   cors({
-    origin: "http://localhost:8080", // Replace with your frontend's origin URL
+    origin: "https://muneesmmm.github.io/carwash-admin", // Replace with your frontend's origin URL
     allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
