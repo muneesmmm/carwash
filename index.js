@@ -15,7 +15,7 @@ const uploadHelper = require("./helpers/s3Upload");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-const port = 8080;
+const port = 80;
 
 app.use(
   cors({
