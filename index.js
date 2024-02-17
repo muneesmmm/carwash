@@ -19,7 +19,7 @@ const port = 8080;
 
 app.use(
   cors({
-    origin: "https://muneesmmm.github.io/carwash-admin/", // Replace with your frontend's origin URL
+    origin: "https://muneesmmm.github.io", // Replace with your frontend's origin URL
     allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
