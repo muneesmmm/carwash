@@ -55,9 +55,10 @@ async function updateUser(req, res) {
     } = req.body;
     const { id } = req.params;
     // Check if the username already exists
+    const hashedPassword = await bcrypt.hash(password, 10);
     const existingUser = await User.findById(id);
     if (!existingUser) {
-      res.status(409).json({ message: "User not exists" });
+      res.status(200).json({ message: "User not exists" });
       return;
     }
 
@@ -67,17 +68,17 @@ async function updateUser(req, res) {
     existingUser.email = email || existingUser.email;
     existingUser.phone = phone || existingUser.phone;
     existingUser.role = role || existingUser.role;
-    existingUser.password = password || existingUser.password;
+    existingUser.password = hashedPassword || existingUser.password;
 
 
     const userData = await existingUser.save();
     const token = authHelpers.generateToken(userData._id);
     res
       .status(201)
-      .json({ message: "User registered successfully", token, userData });
+      .json({ message: "User updated successfully", token, userData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to register user" });
+    res.status(200).json({ message: "Failed to update user" });
   }
 }
 async function updateAvatar(req, res) {
