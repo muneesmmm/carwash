@@ -289,7 +289,7 @@ module.exports = {
 };
 async function getVehicleByNumber(number) {
   try {
-    const vehicle = await Vehicle.findOne({ vehicleNumber: number });
+    const vehicle = await Vehicle.findOne({ vehicleNumber: new RegExp('^' + number + '$', 'i') });
     if (vehicle) {
       return vehicle;
     } else {
