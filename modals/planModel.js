@@ -5,7 +5,8 @@ const planSchema = new mongoose.Schema({
   totalWashes: Number,
   totalInteriors: Number,
   duration:Number,
-  numberOfCars:Number
+  numberOfCars:Number,
+  price:Number
 });
 
 module.exports = mongoose.model("Plan", planSchema);

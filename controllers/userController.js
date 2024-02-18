@@ -68,7 +68,11 @@ async function updateUser(req, res) {
     existingUser.email = email || existingUser.email;
     existingUser.phone = phone || existingUser.phone;
     existingUser.role = role || existingUser.role;
-    existingUser.password = hashedPassword || existingUser.password;
+    if(password = null){
+      existingUser.password = existingUser.password;
+    }else{
+      existingUser.password = hashedPassword
+    }
 
 
     const userData = await existingUser.save();

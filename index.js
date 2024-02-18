@@ -96,6 +96,7 @@ app.post('/removeCar/:userId/:carId',customerController.removeCar)
 app.post('/customer/:userId',customerController.getCustomerById)
 app.post('/add-plan/', planController.addPlan)
 app.post("/get-plans", planController.getPlan);
+app.post("/update-plans", planController.updatePlan);
 app.post("/get-plan/:id", planController.getPlanById);
 app.post("/get-package/:id", packageController.getPackageById);
 app.post("/get-customer-packages/:customer", packageController.getPackageByCustomerId);

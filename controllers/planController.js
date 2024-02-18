@@ -7,7 +7,8 @@ async function addPlan(req, res) {
         totalWashes,
         totalInteriors,
         duration,
-        numberOfCars
+        numberOfCars,
+        price
     } = req.body;
 
     // Save payment data to MongoDB
@@ -16,7 +17,8 @@ async function addPlan(req, res) {
         totalWashes,
         totalInteriors,
         duration,
-        numberOfCars
+        numberOfCars,
+        price
     });
     // Save the transaction to the database
     await plan.save();
@@ -27,6 +29,36 @@ async function addPlan(req, res) {
     res.status(500).json({ message: "Failed to add plan" });
   }
 }
+async function updatePlan(req, res) {
+  try {
+    const { id, name, totalWashes, totalInteriors, duration, numberOfCars, price } = req.body;
+
+    // Find the plan by ID and update it
+    const updatedPlan = await Plan.findOneAndUpdate(
+      { _id: id }, // Filter
+      { $set: { 
+          name,
+          totalWashes,
+          totalInteriors,
+          duration,
+          numberOfCars,
+          price
+        }
+      }, // Update
+      { new: true } // To return the updated document
+    );
+
+    if (!updatedPlan) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+
+    res.status(200).json({ message: "Plan updated successfully", updatedPlan });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update plan" });
+  }
+}
+
 
 async function getPlan(req, res) {
   try {
@@ -78,4 +110,5 @@ module.exports = {
   getPlan,
   getPlanById,
   deletePlanById,
+  updatePlan
 };
