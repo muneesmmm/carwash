@@ -200,7 +200,7 @@ async function getWashesByStaffId(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      });
+      }).sort({washDate:-1});
 
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
