@@ -10,7 +10,7 @@ async function addPlan(req, res) {
         numberOfCars,
         price
     } = req.body;
-
+    // const numberOfDays = getNumberOfDays(duration);
     // Save payment data to MongoDB
     const plan = new Plan({
         name,
@@ -31,16 +31,17 @@ async function addPlan(req, res) {
 }
 async function updatePlan(req, res) {
   try {
-    const { id, name, totalWashes, totalInteriors, duration, numberOfCars, price } = req.body;
+    const { _id, name, totalWashes, totalInteriors, duration, numberOfCars, price } = req.body;
 
     // Find the plan by ID and update it
+    // const numberOfDays = getNumberOfDays(duration);
     const updatedPlan = await Plan.findOneAndUpdate(
-      { _id: id }, // Filter
+      { _id }, // Filter
       { $set: { 
           name,
           totalWashes,
           totalInteriors,
-          duration,
+          duration ,
           numberOfCars,
           price
         }
@@ -112,3 +113,10 @@ module.exports = {
   deletePlanById,
   updatePlan
 };
+// function getNumberOfDays(durationInMonths) {
+//   const currentDate = new Date();
+//   const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + durationInMonths, currentDate.getDate());
+//   const diffTime = endDate.getTime() - currentDate.getTime();
+//   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+//   return diffDays;
+// }
