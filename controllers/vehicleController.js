@@ -170,7 +170,16 @@ async function getVehicleById(req, res) {
 async function getWashesByVehicle(req, res) {
   try {
     var { vehicle } = req.params;
-    const washes = await WashHistory.find({ vehicle });
+    const washes = await WashHistory.find({ vehicle })
+    .populate('vehicle')
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "owner",
+          model: "Customer", // Replace with your Vehicle model name
+        }
+      })
+      .sort({washDate:1})
     if (washes) {
       res.status(200).json({ message: "success", data: washes });
       return;
@@ -226,6 +235,53 @@ async function getWashesByDateForStaff(req, res) {
 
   try {
     const { staff } = req.params;
+
+    // Find washes for the specified staff and current date
+    const washes = await WashHistory.find({
+      staff: staff,
+      washDate: {
+        $gte: today.toDate(), // Greater than or equal to the beginning of the day
+        $lt: moment(today).endOf('day').toDate() // Less than the end of the day
+      }
+    }).populate('vehicle')
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "owner",
+          model: "Customer", // Replace with your Vehicle model name
+        }
+      });
+
+    if (washes && washes.length > 0) {
+      // Map over the wash history data and format the time for each record
+      const washesWithFormattedTime = washes.map(wash => {
+        // Create a Date object from the string
+        const washDate = new Date(wash.washDate);
+        // Convert the Date object to Moment object and format to IST
+        const formattedTime = moment(washDate).tz('Asia/Kolkata').format('hh:mm A');
+        return {
+          ...wash.toObject(),
+          formattedTime
+        };
+      });
+
+      // Send the response with the formatted time
+      res.status(200).json({ message: "success", data: washesWithFormattedTime, status: true });
+    } else {
+      res.status(200).json({ message: "No washes found for the given staff ID on the current date", status: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message, status: false });
+  }
+}
+async function getWashesByDateForCustomer(req, res) {
+  moment.tz.setDefault('Asia/Kolkata');
+  // Get the current date and time in India
+  const today = moment().startOf('day'); // Start of the current day
+
+  try {
+    const { user } = req.params;
 
     // Find washes for the specified staff and current date
     const washes = await WashHistory.find({
@@ -331,5 +387,6 @@ module.exports = {
   getWashesByVehicle,
   interiorWash,
   getVehiclesToWash,
-  getWashesByDateForStaff
+  getWashesByDateForStaff,
+  getWashesByDateForCustomer
 };

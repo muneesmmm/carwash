@@ -134,16 +134,16 @@ async function getCustomerById(req, res) {
     const userId = req.params.userId;
 
     // Find the existing user by ID along with associated vehicles
-    const userWithVehicles = await Customer.findById(userId).populate(
+    const customer = await Customer.findById(userId).populate(
       "vehicles"
     );
 
-    if (!userWithVehicles) {
+    if (!customer) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Respond with the user and associated vehicles
-    res.json(userWithVehicles);
+    res.json({customer,status: true});
   } catch (error) {
     console.error("Error getting customer with vehicles:", error);
     res.status(500).json({ error: error.message });

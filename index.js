@@ -10,16 +10,17 @@ const transactionController = require("./controllers/transactionController");
 const vehicleController = require("./controllers/vehicleController");
 const customerController = require("./controllers/customerController");
 const planController = require("./controllers/planController");
-const packageController = require("./controllers/packageController");
+const packageController = require("./controllers/packageController"); 
+const dashboardController = require("./controllers/dashboardController"); 
 const uploadHelper = require("./helpers/s3Upload");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-const port = 8080;
+const port = 3000;
 
 app.use(
   cors({
-    origin: "https://muneesmmm.github.io", // Replace with your frontend's origin URL
+    origin: "http://localhost:8080", // Replace with your frontend's origin URL
     allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
@@ -90,6 +91,7 @@ app.post('/add-plan/', planController.addPlan)
 app.post("/get-plans", planController.getPlan);
 app.post("/get-plan/:id", planController.getPlanById);
 app.post("/get-package/:id", packageController.getPackageById);
+app.post("/get-customer-packages/:customer", packageController.getPackageByCustomerId);
 app.post("/get-package", packageController.getPackages);
 app.post("/get-customer/:number", customerController.getCustomer);
 app.post("/renew-package", customerController.createAndUpdatePackage);
@@ -100,6 +102,8 @@ app.post("/get-washes", vehicleController.getWashes);
 app.post("/get-vehicle-washes/:vehicle", vehicleController.getWashesByVehicle);
 app.post("/vehicles-to-wash", vehicleController.getVehiclesToWash);
 app.post("/today-washes/:staff", vehicleController.getWashesByDateForStaff);
+app.post("/today-customer-washes/:user", vehicleController.getWashesByDateForCustomer);
+app.post("/dashboardData", dashboardController.getDashBoardData);
 
 
 app.listen(port, () => {

@@ -45,6 +45,22 @@ async function getPackageById(req, res) {
     res.status(500).json({ message: "Package not found" });
   }
 }
+async function getPackageByCustomerId(req, res) {
+  try {
+    var { customer } = req.params;
+    const existingPackage = await Package.find({customer})
+    .populate("plan")
+    .sort({startDate:-1});
+    console.log(existingPackage);
+    if (existingPackage) {
+      res.status(201).json({ message: "success", data: existingPackage });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Package not found" });
+  }
+}
 async function deletePackageById(req, res) {
   try {
     var { id } = req.params;
@@ -67,4 +83,5 @@ module.exports = {
   getPackages,
   getPackageById,
   deletePackageById,
+  getPackageByCustomerId
 };
