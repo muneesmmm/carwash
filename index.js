@@ -20,7 +20,7 @@ const port = 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:8080", // Replace with your frontend's origin URL
+    origin: "https://muneesmmm.github.io", // Replace with your frontend's origin URL
     allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
