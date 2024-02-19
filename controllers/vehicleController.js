@@ -216,9 +216,9 @@ async function getWashesByStaffId(req, res) {
       });
 
       // Send the response with the formatted time
-      res.status(200).json({ message: "success", data: washesWithFormattedTime });
+      res.status(200).json({ message: "success", data: washesWithFormattedTime ,status:true});
     } else {
-      res.status(404).json({ message: "No washes found for the given staff ID" });
+      res.status(200).json({ message: "No washes found for the given staff ID",status:false });
     }
   } catch (error) {
     console.error(error);
