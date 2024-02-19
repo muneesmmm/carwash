@@ -70,7 +70,7 @@ async function addCar(req, res) {
     const existingUser = await Customer.findById(userId);
 
     if (!existingUser) {
-      return res.status(200).json({ message: "User not found",status:false });
+      return res.status(200).json({ message: "User not found", status: false });
     }
 
     // Create a new vehicle and link it to the user
@@ -88,10 +88,10 @@ async function addCar(req, res) {
     await existingUser.save();
 
     // Respond with the updated user and the newly added vehicle
-    res.json({ user: existingUser, vehicle: newVehicle ,status:true});
+    res.json({ user: existingUser, vehicle: newVehicle, status: true });
   } catch (error) {
     console.error("Error adding car:", error);
-    res.status(200).json({ error: error.message,status:false });
+    res.status(200).json({ error: error.message, status: false });
   }
 }
 // API endpoint to remove a car for an existing user
@@ -143,7 +143,7 @@ async function getCustomerById(req, res) {
     }
 
     // Respond with the user and associated vehicles
-    res.json({customer,status: true});
+    res.json({ customer, status: true });
   } catch (error) {
     console.error("Error getting customer with vehicles:", error);
     res.status(500).json({ error: error.message });
@@ -155,6 +155,9 @@ async function getCustomer(req, res) {
     const vehicleNumber = req.params.number;
     let washStatus = true;
     let interiorStatus = true;
+    let expired = false;
+    let threeMonth = false
+    currentMonth = null
     const vehicle = await getVehicleByNumber(vehicleNumber);
     if (vehicle) {
       const customer = await Customer.findById(vehicle.owner)
@@ -177,16 +180,30 @@ async function getCustomer(req, res) {
         });
       }
       if (customer.selectedPackage) {
+        let startDate = customer.selectedPackage?.startDate
+        let endDate = customer.selectedPackage?.endDate
+        currentMonth = getCurrentMonth(startDate, endDate);
         let selectedPackage = customer.selectedPackage;
+        if (new Date() > new Date(selectedPackage.endDate)) {
+          washStatus = false;
+          interiorStatus = false;
+          expired = true
+        }
         if (selectedPackage.remainingWashes === 0) {
           washStatus = false;
         }
         if (selectedPackage.remainingInteriors === 0) {
           interiorStatus = false;
         }
+        if(customer.selectedPackage.plan){
+          let plan = customer.selectedPackage.plan
+          if(plan.duration>30){
+            threeMonth=true
+          }
+        }
       }
       console.log("Found customer:", customer);
-      res.json({ data: customer, status: true, message: "Found customer",washStatus:washStatus,interiorStatus:interiorStatus });
+      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired ,currentMonth:currentMonth,isThreeMonth:threeMonth});
     } else {
       res.json({
         status: false,
@@ -220,7 +237,7 @@ async function getCustomers(req, res) {
   }
 }
 async function createAndUpdatePackage(req, res) {
-  const {userId, newPlanId} = req.body
+  const { userId, newPlanId } = req.body
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -264,12 +281,12 @@ async function createAndUpdatePackage(req, res) {
     session.endSession();
     res.json({
       status: true,
-      message: "Package Updated",package:newPackage,user
+      message: "Package Updated", package: newPackage, user
     });
   } catch (error) {
     res.json({
       status: false,
-      message: "Error creating and updating package:",error
+      message: "Error creating and updating package:", error
     });
     console.error('Error creating and updating package:', error);
     await session.abortTransaction();
@@ -298,5 +315,21 @@ async function getVehicleByNumber(number) {
   } catch (error) {
     console.error("Error finding customer by vehicle number:", error);
     throw error;
+  }
+}
+function getCurrentMonth(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const current = new Date();
+  if (current >= start && current <= end) {
+    const startYear = start.getFullYear();
+    const currentYear = current.getFullYear();
+    const startMonth = start.getMonth();
+    const currentMonth = current.getMonth();
+    
+    const diffMonths = (currentMonth + currentYear * 12) - (startMonth + startYear * 12);
+    return diffMonths + 1; // Calculate the relative month within the plan
+  } else {
+    return -1; // Indicates that the current date is not within the range of the plan
   }
 }
