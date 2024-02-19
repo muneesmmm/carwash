@@ -78,8 +78,8 @@ async function getPlanByNumberOfVehicle(req, res) {
   try {
     const existingPlan = await Plan.find();
     if (existingPlan) {
-      const dualWashPlans = existingPlan.filter(plan => plan.totalWashes >= 2);
-      const singleWashPlans = existingPlan.filter(plan => plan.totalWashes === 1);
+      const dualWashPlans = existingPlan.filter(plan => plan.numberOfCars >= 2);
+      const singleWashPlans = existingPlan.filter(plan => plan.numberOfCars === 1);
       res.status(201).json({ message: "success", data: {singleWashPlans,dualWashPlans} ,status:true});
       return;
     }
