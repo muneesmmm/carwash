@@ -74,6 +74,20 @@ async function getPlan(req, res) {
     res.status(500).json({ message: "Failed to get Plan" ,status:false});
   }
 }
+async function getPlanByNumberOfVehicle(req, res) {
+  try {
+    const existingPlan = await Plan.find();
+    if (existingPlan) {
+      const dualWashPlans = existingPlan.filter(plan => plan.totalWashes >= 2);
+      const singleWashPlans = existingPlan.filter(plan => plan.totalWashes === 1);
+      res.status(201).json({ message: "success", data: {singleWashPlans,dualWashPlans} ,status:true});
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to get Plan" ,status:false});
+  }
+}
 async function getPlanById(req, res) {
   try {
     var { id } = req.params;
@@ -111,7 +125,8 @@ module.exports = {
   getPlan,
   getPlanById,
   deletePlanById,
-  updatePlan
+  updatePlan,
+  getPlanByNumberOfVehicle
 };
 // function getNumberOfDays(durationInMonths) {
 //   const currentDate = new Date();
