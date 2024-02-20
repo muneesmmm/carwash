@@ -105,6 +105,7 @@ app.post("/get-package", packageController.getPackages);
 app.post("/get-customer/:number", customerController.getCustomer);
 app.post("/renew-package", customerController.createAndUpdatePackage);
 app.post("/complete-wash/:package", vehicleController.addWash);
+app.post("/complete-coupen-wash/:package", vehicleController.coupenWash);
 app.post("/complete-interior/:package", vehicleController.interiorWash);
 app.post("/get-washes/:staff", vehicleController.getWashesByStaffId);
 app.post("/get-washes", vehicleController.getWashes);

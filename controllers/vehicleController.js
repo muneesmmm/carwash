@@ -68,6 +68,48 @@ async function addWash(req, res) {
     return res.status(200).json({ message: "Failed to add wash", status: false });
   }
 }
+async function coupenWash(req, res) {
+  try {
+    const { vehicle, staff, washDate } = req.body;
+    const { package } = req.params; // Renamed variable for clarity
+    console.log(req.body, package);
+
+    const existingPackage = await Package.findById(package);
+    if (!existingPackage) {
+      return res.status(200).json({ message: "Package not found", status: false });
+    }
+
+    if (existingPackage.remainingWashes > 0 && existingPackage.remainingInteriors > 0) {
+      existingPackage.remainingWashes--;
+      existingPackage.remainingInteriors--;
+      const updatedPackage = await existingPackage.save();
+
+      // Set the timezone to India (Asia/Kolkata)
+      moment.tz.setDefault('Asia/Kolkata');
+
+      // Get the current date and time in India
+      const currentDateTime = moment().toDate();
+
+      // Save payment data to MongoDB
+      const wash = new WashHistory({
+        vehicle,
+        staff,
+        washDate:currentDateTime, // Use provided washDate or current date/time
+        washType: "Wash"
+      });
+
+      // Save the transaction to the database
+      await wash.save();
+
+      return res.status(200).json({ message: "Wash added successfully", updatedPackage, status: true });
+    } else {
+      return res.status(200).json({ message: "No washes remaining", status: false });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(200).json({ message: "Failed to add wash", status: false });
+  }
+}
 async function interiorWash(req, res) {
   try {
     const { vehicle, staff } = req.body;
@@ -388,5 +430,6 @@ module.exports = {
   interiorWash,
   getVehiclesToWash,
   getWashesByDateForStaff,
-  getWashesByDateForCustomer
+  getWashesByDateForCustomer,
+  coupenWash
 };
