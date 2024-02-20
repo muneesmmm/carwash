@@ -7,36 +7,53 @@ async function addCustomer(req, res) {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    // Extract user and vehicles data from the request body
     const { user, vehicles, selectedPlan, paymentType } = req.body;
 
-    // Create a new customer
+    // Check if the user already exists
+    const existingUser = await Customer.findOne({ $or: [{ email: user.email }, { phone: user.phone }] });
+    if (existingUser) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(200).json({ message: "User with the same phone number already exists.",status:false });
+    }
+
+    // Check if any vehicle already exists
+    for (const vehicleData of vehicles) {
+      const existingVehicle = await Vehicle.findOne({ vehicleNumber: vehicleData.vehicleNumber });
+      if (existingVehicle) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(200).json({ message: `Vehicle with number ${vehicleData.vehicleNumber} already exists.`,status:false });
+      }
+    }
+
+    // No existing user or vehicles found, proceed with creating the user and vehicles
     const newUser = new Customer({
       name: user.name,
       email: user.email,
       phone: user.phone,
       paymentType,
     });
-    // Create an array to store the created vehicles
-    const createdVehicles = [];
 
-    // Create and link each vehicle to the user
+    const createdVehicles = [];
     for (const vehicleData of vehicles) {
       const newVehicle = new Vehicle({
         vehicleNumber: vehicleData.vehicleNumber,
         type: vehicleData.type,
         owner: newUser._id,
       });
-
       await newVehicle.save({ session });
       createdVehicles.push(newVehicle);
       newUser.vehicles.push(newVehicle._id);
     }
+
     await newUser.save({ session });
+
     const existingPlan = await Plan.findById(selectedPlan);
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + existingPlan.duration);
+
     const newPackage = new Package({
       customer: newUser._id,
       plan: selectedPlan,
@@ -45,21 +62,26 @@ async function addCustomer(req, res) {
       startDate,
       endDate,
     });
+
     await newPackage.save({ session });
-    // Link the package to the user (if needed)
     newUser.selectedPackage = newPackage._id;
     await newUser.save({ session });
 
     await session.commitTransaction();
     session.endSession();
-    res.json({ user: newUser, vehicles: createdVehicles });
+
+    res.json({ user: newUser, vehicles: createdVehicles,status:true });
   } catch (error) {
-    console.error("Error adding customer:", error);
+    console.error("", error);
+    res.status(200).json({ error: "Error adding customer. Please try again later." ,status :false});
+
     await session.abortTransaction();
     session.endSession();
-    res.status(500).json({ error: error.message });
+    res.status(200).json({ error: "Error adding customer. Please try again later.",status:false });
   }
 }
+
+
 // API endpoint to add a car for an existing user
 async function addCar(req, res) {
   try {
@@ -195,15 +217,15 @@ async function getCustomer(req, res) {
         if (selectedPackage.remainingInteriors === 0) {
           interiorStatus = false;
         }
-        if(customer.selectedPackage.plan){
+        if (customer.selectedPackage.plan) {
           let plan = customer.selectedPackage.plan
-          if(plan.duration>30){
-            threeMonth=true
+          if (plan.duration > 30) {
+            threeMonth = true
           }
         }
       }
       console.log("Found customer:", customer);
-      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired ,currentMonth:currentMonth,isThreeMonth:threeMonth});
+      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired, currentMonth: currentMonth, isThreeMonth: threeMonth });
     } else {
       res.json({
         status: false,
@@ -326,7 +348,7 @@ function getCurrentMonth(startDate, endDate) {
     const currentYear = current.getFullYear();
     const startMonth = start.getMonth();
     const currentMonth = current.getMonth();
-    
+
     const diffMonths = (currentMonth + currentYear * 12) - (startMonth + startYear * 12);
     return diffMonths + 1; // Calculate the relative month within the plan
   } else {
