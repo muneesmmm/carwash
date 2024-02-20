@@ -212,18 +212,21 @@ async function getCustomer(req, res) {
           interiorStatus = false;
           expired = true
         }
-        if (selectedPackage.remainingWashes === 0) {
-          washStatus = false;
-        }
-        if (selectedPackage.remainingInteriors === 0) {
-          interiorStatus = false;
-        }
         if (customer.selectedPackage.plan) {
           let plan = customer.selectedPackage.plan
           if (plan.duration > 30) {
             threeMonth = true
           }
           isCoupon = (plan.name === "Coupon ordinary" || plan.name === "Coupon SUV");
+        }
+        if (selectedPackage.remainingWashes === 0) {
+          washStatus = false;
+          isCoupon =false
+        }
+        if (selectedPackage.remainingInteriors === 0) {
+          interiorStatus = false;
+          isCoupon =false
+
         }
       }
       console.log("Found customer:", customer);
