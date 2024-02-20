@@ -179,6 +179,7 @@ async function getCustomer(req, res) {
     let interiorStatus = true;
     let expired = false;
     let threeMonth = false
+    let isCoupon = false
     currentMonth = null
     const vehicle = await getVehicleByNumber(vehicleNumber);
     if (vehicle) {
@@ -222,10 +223,11 @@ async function getCustomer(req, res) {
           if (plan.duration > 30) {
             threeMonth = true
           }
+          isCoupon = (plan.name === "Coupon ordinary" || plan.name === "Coupon SUV");
         }
       }
       console.log("Found customer:", customer);
-      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired, currentMonth: currentMonth, isThreeMonth: threeMonth });
+      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired, currentMonth: currentMonth, isThreeMonth: threeMonth,isCoupon:isCoupon });
     } else {
       res.json({
         status: false,
