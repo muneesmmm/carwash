@@ -67,11 +67,11 @@ async function addCustomer(req, res) {
     await newPackage.save({ session });
     newUser.selectedPackage = newPackage._id;
     await newUser.save({ session });
-
+    console.log(newUser);
+    res.json({ user: newUser, vehicles: createdVehicles,status:true });
     await session.commitTransaction();
     session.endSession();
 
-    res.json({ user: newUser, vehicles: createdVehicles,status:true });
   } catch (error) {
     console.error("", error);
     res.status(200).json({ error: "Error adding customer. Please try again later." ,status :false});
