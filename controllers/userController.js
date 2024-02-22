@@ -5,7 +5,7 @@ const authHelpers = require("../helpers/auth");
 const { uploadFileToS3 } = require("../helpers/s3Upload");
 async function registerUser(req, res) {
   try {
-    const { username, name, password, email, phone, location ,role} = req.body;
+    const { username, name, password, email, phone, location ,role,staffId} = req.body;
 
     // Check if the username already exists
     const existingUser = await User.findOne({ username });
@@ -16,10 +16,10 @@ async function registerUser(req, res) {
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const avatarFile = req.file;
-    if (avatarFile) {
-      var avatarUrl = await uploadFileToS3(avatarFile);
-    }
+    // const avatarFile = req.file;
+    // if (avatarFile) {
+    //   var avatarUrl = await uploadFileToS3(avatarFile);
+    // }
     // Save the user to the database
     const user = new User({
       username,
@@ -28,12 +28,14 @@ async function registerUser(req, res) {
       phone,
       location,
       role,
-      password: hashedPassword
+      password: hashedPassword,
+      location,
+      staffId
       // avatar: avatarUrl,
       // Assuming you store the S3 file URL in the 'location' property
     });
-    const userId = await generateStaffID();
-    user.staffId = userId;
+    // const userId = await generateStaffID();
+    // user.staffId = userId;
     const userData = await user.save();
     const token = authHelpers.generateToken(userData._id);
     res
@@ -46,45 +48,38 @@ async function registerUser(req, res) {
 }
 async function updateUser(req, res) {
   try {
-    const {
-      name,
-      email,
-      phone,
-      role,
-      password,
-    } = req.body;
-    const { id } = req.params;
-    // Check if the username already exists
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const existingUser = await User.findById(id);
-    if (!existingUser) {
-      res.status(200).json({ message: "User not exists" });
+    const { id } = req.params; // Assuming userId is passed in the request parameters
+    const { username, name, password, email, phone, location, role } = req.body;
+
+    // Find the user by userId
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
       return;
     }
 
-    // Save the user to the database
-
-    existingUser.name = name || existingUser.name;
-    existingUser.email = email || existingUser.email;
-    existingUser.phone = phone || existingUser.phone;
-    existingUser.role = role || existingUser.role;
-    if(password = null){
-      existingUser.password = existingUser.password;
-    }else{
-      existingUser.password = hashedPassword
+    // Update user properties if they are provided in the request body
+    if (username) user.username = username;
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (location) user.location = location;
+    if (role) user.role = role;
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
     }
 
+    // Save the updated user
+    const updatedUser = await user.save();
 
-    const userData = await existingUser.save();
-    const token = authHelpers.generateToken(userData._id);
-    res
-      .status(201)
-      .json({ message: "User updated successfully", token, userData });
+    res.status(200).json({ message: "User updated successfully", updatedUser, status: true });
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "Failed to update user" });
+    res.status(500).json({ message: "Failed to update user", status: false });
   }
 }
+
 async function updateAvatar(req, res) {
   try {
     const { id } = req.params;
@@ -210,25 +205,25 @@ module.exports = {
   getUserbyId,
   deleteUserbyId
 };
-async function generateStaffID() {
-  try {
-    // Find the latest staff record to get the current ID
-    const latestStaff = await User.findOne().sort({ _id: -1 }).exec();
+// async function generateStaffID() {
+//   try {
+//     // Find the latest staff record to get the current ID
+//     const latestStaff = await User.findOne().sort({ _id: -1 }).exec();
     
-    let currentID = 1; // Default ID if no existing staff
+//     let currentID = 1; // Default ID if no existing staff
     
-    if (latestStaff && latestStaff.staffId) {
-      // Get the current ID from the latest staff record
-      currentID = parseInt(latestStaff.staffId.substr(3)) + 1;
-    }
+//     if (latestStaff && latestStaff.staffId) {
+//       // Get the current ID from the latest staff record
+//       currentID = parseInt(latestStaff.staffId.substr(3)) + 1;
+//     }
 
-    // Generate the new staff ID (you can adjust the format as needed)
-    const newID = `emp${currentID.toString().padStart(4, '0')}`;
+//     // Generate the new staff ID (you can adjust the format as needed)
+//     const newID = `emp${currentID.toString().padStart(4, '0')}`;
     
-    // Return the new ID
-    return newID;
-  } catch (error) {
-    console.error('Error generating staff ID:', error);
-    throw error;
-  }
-}
+//     // Return the new ID
+//     return newID;
+//   } catch (error) {
+//     console.error('Error generating staff ID:', error);
+//     throw error;
+//   }
+// }

@@ -11,4 +11,5 @@ const customerSchema = new mongoose.Schema({
     },
     selectedPackage:{ type: mongoose.Schema.Types.ObjectId, ref: 'Package' }
 });
+
 module.exports =  mongoose.model('Customer', customerSchema);

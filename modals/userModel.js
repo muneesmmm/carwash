@@ -7,10 +7,11 @@ const userSchema = new mongoose.Schema({
   password: String,
   phone: Number,
   staffId: String,
-  role:{
-      type: String,
-      default: "staff",
-    },
+  role: {
+    type: String,
+    default: "staff",
+  },
+  location:String
   // avatar: {
   //   type: String,
   //   default: "default-avatar.png", // Set a default avatar file name if desired
