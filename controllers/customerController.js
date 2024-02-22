@@ -4,6 +4,7 @@ const Plan = require("../modals/planModel");
 const Package = require("../modals/packageModel");
 const { mongoose, ObjectId } = require("mongoose");
 async function addCustomer(req, res) {
+  console.log(req.body);
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
