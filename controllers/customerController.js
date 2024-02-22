@@ -4,57 +4,39 @@ const Plan = require("../modals/planModel");
 const Package = require("../modals/packageModel");
 const { mongoose, ObjectId } = require("mongoose");
 async function addCustomer(req, res) {
-  console.log(req.body);
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
+    // Extract user and vehicles data from the request body
     const { user, vehicles, selectedPlan, paymentType } = req.body;
 
-    // Check if the user already exists
-    const existingUser = await Customer.findOne({ $or: [{ email: user.email }, { phone: user.phone }] });
-    if (existingUser) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(200).json({ message: "User with the same phone number already exists.",status:false });
-    }
-
-    // Check if any vehicle already exists
-    for (const vehicleData of vehicles) {
-      const existingVehicle = await Vehicle.findOne({ vehicleNumber: vehicleData.vehicleNumber });
-      if (existingVehicle) {
-        await session.abortTransaction();
-        session.endSession();
-        return res.status(200).json({ message: `Vehicle with number ${vehicleData.vehicleNumber} already exists.`,status:false });
-      }
-    }
-
-    // No existing user or vehicles found, proceed with creating the user and vehicles
+    // Create a new customer
     const newUser = new Customer({
       name: user.name,
       email: user.email,
       phone: user.phone,
       paymentType,
     });
-
+    // Create an array to store the created vehicles
     const createdVehicles = [];
+
+    // Create and link each vehicle to the user
     for (const vehicleData of vehicles) {
       const newVehicle = new Vehicle({
         vehicleNumber: vehicleData.vehicleNumber,
         type: vehicleData.type,
         owner: newUser._id,
       });
+
       await newVehicle.save({ session });
       createdVehicles.push(newVehicle);
       newUser.vehicles.push(newVehicle._id);
     }
-
     await newUser.save({ session });
-
     const existingPlan = await Plan.findById(selectedPlan);
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + existingPlan.duration);
-
     const newPackage = new Package({
       customer: newUser._id,
       plan: selectedPlan,
@@ -63,22 +45,19 @@ async function addCustomer(req, res) {
       startDate,
       endDate,
     });
-
     await newPackage.save({ session });
+    // Link the package to the user (if needed)
     newUser.selectedPackage = newPackage._id;
     await newUser.save({ session });
-    console.log(newUser);
-    res.json({ user: newUser, vehicles: createdVehicles,status:true });
+
     await session.commitTransaction();
     session.endSession();
-
+    res.json({ user: newUser, vehicles: createdVehicles });
   } catch (error) {
-    console.error("", error);
-    res.status(200).json({ error: "Error adding customer. Please try again later." ,status :false});
-
+    console.error("Error adding customer:", error);
     await session.abortTransaction();
     session.endSession();
-    res.status(200).json({ error: "Error adding customer. Please try again later.",status:false });
+    res.status(500).json({ error: error.message });
   }
 }
 
