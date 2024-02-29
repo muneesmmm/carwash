@@ -14,18 +14,20 @@ const packageController = require("./controllers/packageController");
 const dashboardController = require("./controllers/dashboardController"); 
 const uploadHelper = require("./helpers/s3Upload");
 const cors = require("cors");
+const emailController = require("./controllers/emailController");
+const smsController = require("./controllers/smsController");
 require("dotenv").config();
 const app = express();
-const port = 8080;
+const port = 3000;
 
 app.use(
   cors({
-    origin: "https://muneesmmm.github.io", // Replace with your frontend's origin URL
+    origin: "http://admin.hexpeak.co.in.s3-website-us-east-1.amazonaws.com", // Replace with your frontend's origin URL
     allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
 app.use((req, res, next) => {
-res.setHeader('Access-Control-Allow-Origin', 'https://muneesmmm.github.io');
+res.setHeader('Access-Control-Allow-Origin', 'http://admin.hexpeak.co.in.s3-website-us-east-1.amazonaws.com');
 res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 res.setHeader('Access-Control-Allow-Credentials', true);
@@ -114,6 +116,20 @@ app.post("/vehicles-to-wash", vehicleController.getVehiclesToWash);
 app.post("/today-washes/:staff", vehicleController.getWashesByDateForStaff);
 app.post("/today-customer-washes/:user", vehicleController.getWashesByDateForCustomer);
 app.post("/dashboard-data", dashboardController.getDashBoardData);
+app.post('/send-email', emailController.sendEmail); 
+app.post('/sendSMS', (req, res) => {
+  const { to, message } = req.body;
+
+  smsController.sendSMS(to, message)
+    .then(message => {
+      console.log('Message sent! SID:', message.sid);
+      res.send('Message sent successfully!');
+    })
+    .catch(error => {
+      console.error('Error sending message:', error);
+      res.status(500).send('Failed to send message');
+    });
+});
 
 
 app.listen(port, () => {

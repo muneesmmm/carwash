@@ -1,6 +1,7 @@
 const Vehicle = require("../modals/vehicleModel");
 const Customer = require("../modals/customerModel");
 const Plan = require("../modals/planModel");
+const WashHistory = require('../modals/washHistory')
 const Package = require("../modals/packageModel");
 const { mongoose, ObjectId } = require("mongoose");
 async function addCustomer(req, res) {
@@ -208,6 +209,17 @@ async function getCustomer(req, res) {
           isCoupon =false
 
         }
+      }
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+      const washedTodayWash = await WashHistory.findOne({ vehicle: vehicle._id, washDate: today, washType: 'Wash' }).exec();
+      if (washedTodayWash) {
+        washStatus = false;
+      }
+
+      // Check if the vehicle has been washed today for Interior type
+      const washedTodayInterior = await WashHistory.findOne({ vehicle: vehicle._id, washDate: today, washType: 'Interior' }).exec();
+      if (washedTodayInterior) {
+        interiorStatus = false;
       }
       console.log("Found customer:", customer);
       res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired, currentMonth: currentMonth, isThreeMonth: threeMonth,isCoupon:isCoupon });
