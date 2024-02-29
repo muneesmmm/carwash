@@ -27,12 +27,26 @@ app.use(
   })
 );
 app.use((req, res, next) => {
+<<<<<<< HEAD
 res.setHeader('Access-Control-Allow-Origin', 'https://muneesmmm.github.io');
+=======
+
+res.setHeader('Access-Control-Allow-Origin', 'http://admin.hexpeak.co.in.s3-website-us-east-1.amazonaws.com/');
+>>>>>>> fcb803d3fcc6c47bde14625d14efcb93bfc84100
 res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 res.setHeader('Access-Control-Allow-Credentials', true);
 next();
 });
+<<<<<<< HEAD
+=======
+app.use(
+  cors({
+    origin:"http://admin.hexpeak.co.in.s3-website-us-east-1.amazonaws.com/", // Replace with your frontend's origin URL
+    allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
+  })
+);
+>>>>>>> fcb803d3fcc6c47bde14625d14efcb93bfc84100
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
