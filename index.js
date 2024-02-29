@@ -20,7 +20,6 @@ require("dotenv").config();
 const app = express();
 const port = 8080;
 
-<<<<<<< HEAD
 app.use(
   cors({
 	  origin: "https://muneesmmm.github.io", // Replace with your frontend's origin URL
@@ -28,23 +27,12 @@ app.use(
   })
 );
 app.use((req, res, next) => {
-=======
-
-app.use((req, res, next) => {
-
->>>>>>> c7ff2a2dec7a6c0d2719cf5d926d09ed53653e5b
 res.setHeader('Access-Control-Allow-Origin', 'https://muneesmmm.github.io');
 res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 res.setHeader('Access-Control-Allow-Credentials', true);
 next();
 });
-app.use(
-  cors({
-    origin:"https://muneesmmm.github.io", // Replace with your frontend's origin URL
-    allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
-  })
-);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
