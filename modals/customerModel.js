@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const customerSchema = new mongoose.Schema({
     name: String,
     email: String,
-    phone: Number,
+    phone: String,
     vehicles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' }],
     paymentType: {
         type: String,

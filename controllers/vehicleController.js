@@ -1,6 +1,8 @@
 const Package = require("../modals/packageModel");
 const Vehicle = require("../modals/vehicleModel");
 const WashHistory = require("../modals/washHistory");
+const smsController = require("../controllers/smsController");
+
 const moment = require('moment-timezone');
 async function addVehicle(req, res) {
   try {
@@ -41,7 +43,6 @@ async function addWash(req, res) {
     if (existingPackage.remainingWashes > 0) {
       existingPackage.remainingWashes--;
       const updatedPackage = await existingPackage.save();
-
       // Set the timezone to India (Asia/Kolkata)
       moment.tz.setDefault('Asia/Kolkata');
 
@@ -53,12 +54,13 @@ async function addWash(req, res) {
         vehicle,
         staff,
         washDate:currentDateTime, // Use provided washDate or current date/time
-        washType: "Wash"
+        washType: "Wash",
+        package
       });
 
       // Save the transaction to the database
       await wash.save();
-
+      checkStatusAndNotify(updatedPackage)
       return res.status(200).json({ message: "Wash added successfully", updatedPackage, status: true });
     } else {
       return res.status(200).json({ message: "No washes remaining", status: false });
@@ -95,11 +97,13 @@ async function coupenWash(req, res) {
         vehicle,
         staff,
         washDate:currentDateTime, // Use provided washDate or current date/time
-        washType: "Wash"
+        washType: "Wash",
+        packageetil
       });
 
       // Save the transaction to the database
       await wash.save();
+      checkStatusAndNotify(updatedPackage)
 
       return res.status(200).json({ message: "Wash added successfully", updatedPackage, status: true });
     } else {
@@ -136,12 +140,13 @@ async function interiorWash(req, res) {
         vehicle,
         staff,
         washDate: currentDateTime, // Use current date/time in IST
-        washType: "Interior"
+        washType: "Interior",
+        package
       });
 
       // Save the transaction to the database
       await wash.save();
-      
+      checkStatusAndNotify(updatedPackage)
       return res.status(200).json({ message: "Interior wash successfully", updatedPackage, status: true });
     } else {
       return res.status(200).json({ message: "No interior washes remaining", status: false });
@@ -433,3 +438,25 @@ module.exports = {
   getWashesByDateForCustomer,
   coupenWash
 };
+async function checkStatusAndNotify(package) {
+  try {
+    const populatedPackage = await Package.findById(package._id).populate('customer').exec();
+    const washHistory = await WashHistory.find({ package: package._id });
+    if (populatedPackage.remainingWashes === 0 && populatedPackage .remainingInteriors === 0) {
+      await sendSMSNotification(populatedPackage.customer.phone, washHistory);
+    }
+  } catch (error) {
+    console.error('nofification not send:', error);
+    throw error;
+  }
+}
+async function sendSMSNotification(phone, history, res) {
+  try {
+    const message = await smsController.sendSMS(phone, history);
+    console.log('Message sent! SID:', message.sid);
+    console.log('Message sent successfully!');
+  } catch (error) {
+    console.error('Error sending message:', error);
+    console.log('Failed to send message');
+  }
+}
