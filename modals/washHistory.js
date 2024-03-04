@@ -4,7 +4,8 @@ const washSchema = new mongoose.Schema({
   vehicle: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' },
   staff: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   washDate: {
-    type: String,
+    type: Date,
+    default: Date.now,
   },
   washType: {
     type: String,

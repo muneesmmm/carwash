@@ -176,53 +176,75 @@ async function getCustomer(req, res) {
         })
         .exec();
 
-      if (!customer) {
+      if (customer) {
+        if (customer.selectedPackage) {
+          let startDate = customer.selectedPackage?.startDate
+          let endDate = customer.selectedPackage?.endDate
+          currentMonth = getCurrentMonth(startDate, endDate);
+          let selectedPackage = customer.selectedPackage;
+          if (new Date() > new Date(selectedPackage.endDate)) {
+            washStatus = false;
+            interiorStatus = false;
+            expired = true
+          }
+          if (customer.selectedPackage.plan) {
+            let plan = customer.selectedPackage.plan
+            if (plan.duration > 30) {
+              threeMonth = true
+            }
+            isCoupon = (plan.name === "Coupon ordinary" || plan.name === "Coupon SUV");
+          }
+          if (selectedPackage.remainingWashes === 0) {
+            washStatus = false;
+            isCoupon = false
+          }
+          if (selectedPackage.remainingInteriors === 0) {
+            interiorStatus = false;
+            isCoupon = false
+
+          }
+        }
+      } else {
         console.log("Customer not found for the given vehicle number");
         res.json({
           status: false,
           message: "Customer not found for the given vehicle number",
         });
       }
-      if (customer.selectedPackage) {
-        let startDate = customer.selectedPackage?.startDate
-        let endDate = customer.selectedPackage?.endDate
-        currentMonth = getCurrentMonth(startDate, endDate);
-        let selectedPackage = customer.selectedPackage;
-        if (new Date() > new Date(selectedPackage.endDate)) {
-          washStatus = false;
-          interiorStatus = false;
-          expired = true
-        }
-        if (customer.selectedPackage.plan) {
-          let plan = customer.selectedPackage.plan
-          if (plan.duration > 30) {
-            threeMonth = true
-          }
-          isCoupon = (plan.name === "Coupon ordinary" || plan.name === "Coupon SUV");
-        }
-        if (selectedPackage.remainingWashes === 0) {
-          washStatus = false;
-          isCoupon =false
-        }
-        if (selectedPackage.remainingInteriors === 0) {
-          interiorStatus = false;
-          isCoupon =false
 
-        }
-      }
-      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-      const washedTodayWash = await WashHistory.findOne({ vehicle: vehicle._id, washDate: today, washType: 'Wash' }).exec();
-      if (washedTodayWash) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0); // Set to the beginning of the day
+
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999); // Set to the end of the day
+
+      // Find today's washes
+      const todayWashes = await WashHistory.find({
+        washDate: {
+          $gte: todayStart, // Greater than or equal to the start of the day
+          $lte: todayEnd // Less than or equal to the end of the day
+        },
+        washType: 'Wash' // Optionally filter by wash type
+      }).exec();
+      console.log(todayWashes);
+      if (todayWashes.length > 0) {
         washStatus = false;
+        console.log("car washed today");
       }
 
       // Check if the vehicle has been washed today for Interior type
-      const washedTodayInterior = await WashHistory.findOne({ vehicle: vehicle._id, washDate: today, washType: 'Interior' }).exec();
-      if (washedTodayInterior) {
+      const washedTodayInterior =  await WashHistory.find({
+        washDate: {
+          $gte: todayStart, // Greater than or equal to the start of the day
+          $lte: todayEnd // Less than or equal to the end of the day
+        },
+        washType: 'Interior' // Optionally filter by wash type
+      }).exec();
+      if (washedTodayInterior.length>0) {
         interiorStatus = false;
+        console.log("car washed today");
       }
-      console.log("Found customer:", customer);
-      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired, currentMonth: currentMonth, isThreeMonth: threeMonth,isCoupon:isCoupon });
+      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired, currentMonth: currentMonth, isThreeMonth: threeMonth, isCoupon: isCoupon });
     } else {
       res.json({
         status: false,

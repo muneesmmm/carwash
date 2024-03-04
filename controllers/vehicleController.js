@@ -53,7 +53,7 @@ async function addWash(req, res) {
       const wash = new WashHistory({
         vehicle,
         staff,
-        washDate:currentDateTime, // Use provided washDate or current date/time
+        washDate: currentDateTime, // Use provided washDate or current date/time
         washType: "Wash",
         package
       });
@@ -96,7 +96,7 @@ async function coupenWash(req, res) {
       const wash = new WashHistory({
         vehicle,
         staff,
-        washDate:currentDateTime, // Use provided washDate or current date/time
+        washDate: currentDateTime, // Use provided washDate or current date/time
         washType: "Wash",
         packageetil
       });
@@ -218,7 +218,7 @@ async function getWashesByVehicle(req, res) {
   try {
     var { vehicle } = req.params;
     const washes = await WashHistory.find({ vehicle })
-    .populate('vehicle')
+      .populate('vehicle')
       .populate({
         path: "vehicle",
         populate: {
@@ -226,7 +226,7 @@ async function getWashesByVehicle(req, res) {
           model: "Customer", // Replace with your Vehicle model name
         }
       })
-      .sort({washDate:1})
+      .sort({ washDate: 1 })
     if (washes) {
       res.status(200).json({ message: "success", data: washes });
       return;
@@ -247,7 +247,7 @@ async function getWashesByStaffId(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      }).sort({washDate:-1});
+      }).sort({ washDate: -1 });
 
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
@@ -263,9 +263,9 @@ async function getWashesByStaffId(req, res) {
       });
 
       // Send the response with the formatted time
-      res.status(200).json({ message: "success", data: washesWithFormattedTime ,status:true});
+      res.status(200).json({ message: "success", data: washesWithFormattedTime, status: true });
     } else {
-      res.status(200).json({ message: "No washes found for the given staff ID",status:false });
+      res.status(200).json({ message: "No washes found for the given staff ID", status: false });
     }
   } catch (error) {
     console.error(error);
@@ -277,18 +277,20 @@ async function getWashesByStaffId(req, res) {
 
 async function getWashesByDateForStaff(req, res) {
   moment.tz.setDefault('Asia/Kolkata');
-  // Get the current date and time in India
-  const today = moment().startOf('day'); // Start of the current day
-
   try {
     const { staff } = req.params;
 
     // Find washes for the specified staff and current date
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0); // Set to the beginning of the day
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999); // Set to the end of the day
     const washes = await WashHistory.find({
       staff: staff,
       washDate: {
-        $gte: today.toDate(), // Greater than or equal to the beginning of the day
-        $lt: moment(today).endOf('day').toDate() // Less than the end of the day
+        $gte: todayStart, // Greater than or equal to the beginning of the day
+        $lt: todayEnd // Less than the end of the day
       }
     }).populate('vehicle')
       .populate({
@@ -442,7 +444,7 @@ async function checkStatusAndNotify(package) {
   try {
     const populatedPackage = await Package.findById(package._id).populate('customer').exec();
     const washHistory = await WashHistory.find({ package: package._id });
-    if (populatedPackage.remainingWashes === 0 && populatedPackage .remainingInteriors === 0) {
+    if (populatedPackage.remainingWashes === 0 && populatedPackage.remainingInteriors === 0) {
       await sendSMSNotification(populatedPackage.customer.phone, washHistory);
     }
   } catch (error) {
