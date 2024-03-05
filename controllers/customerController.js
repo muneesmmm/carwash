@@ -255,7 +255,7 @@ async function getCustomer(req, res) {
         currentMonth: currentMonth, 
         isThreeMonth: threeMonth, 
         isCoupon: isCoupon,
-        todayWashes:todayWashes,
+        todayWashStatus:todayWashStatus,
         todayInStatus:todayInStatus,
       }
       res.json(returnData);
