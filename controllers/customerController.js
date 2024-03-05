@@ -157,7 +157,7 @@ async function getCustomer(req, res) {
     // Find the customer where the vehicles array contains the specified vehicle number
     const vehicleNumber = req.params.number;
     let todayWashStatus = false;
-    let todayInStatus = false;
+    let todayIntStatus = false;
     let washStatus = true;
     let interiorStatus = true;
     let expired = false;
@@ -242,7 +242,7 @@ async function getCustomer(req, res) {
         washType: 'Interior' // Optionally filter by wash type
       }).exec();
       if (washedTodayInterior.length > 0) {
-        interiorStatus = false;
+        todayIntStatus = false;
         console.log("car washed today");
       }
       let returnData = {
@@ -256,7 +256,7 @@ async function getCustomer(req, res) {
         isThreeMonth: threeMonth, 
         isCoupon: isCoupon,
         todayWashStatus:todayWashStatus,
-        todayInStatus:todayInStatus,
+        todayIntStatus:todayIntStatus,
       }
       res.json(returnData);
     } else {
