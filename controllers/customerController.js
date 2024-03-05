@@ -156,12 +156,14 @@ async function getCustomer(req, res) {
   try {
     // Find the customer where the vehicles array contains the specified vehicle number
     const vehicleNumber = req.params.number;
+    let todayWashStatus = false;
+    let todayInStatus = false;
     let washStatus = true;
     let interiorStatus = true;
     let expired = false;
     let threeMonth = false
     let isCoupon = false
-    currentMonth = null
+    let currentMonth = null
     const vehicle = await getVehicleByNumber(vehicleNumber);
     if (vehicle) {
       const customer = await Customer.findById(vehicle.owner)
@@ -226,25 +228,37 @@ async function getCustomer(req, res) {
         },
         washType: 'Wash' // Optionally filter by wash type
       }).exec();
-      console.log(todayWashes);
       if (todayWashes.length > 0) {
-        washStatus = false;
+        todayWashStatus = false;
         console.log("car washed today");
       }
 
       // Check if the vehicle has been washed today for Interior type
-      const washedTodayInterior =  await WashHistory.find({
+      const washedTodayInterior = await WashHistory.find({
         washDate: {
           $gte: todayStart, // Greater than or equal to the start of the day
           $lte: todayEnd // Less than or equal to the end of the day
         },
         washType: 'Interior' // Optionally filter by wash type
       }).exec();
-      if (washedTodayInterior.length>0) {
+      if (washedTodayInterior.length > 0) {
         interiorStatus = false;
         console.log("car washed today");
       }
-      res.json({ data: customer, status: true, message: "Found customer", washStatus: washStatus, interiorStatus: interiorStatus, isExpired: expired, currentMonth: currentMonth, isThreeMonth: threeMonth, isCoupon: isCoupon });
+      let returnData = {
+        data: customer,
+        status: true,
+        message: "Found customer",
+        washStatus: washStatus, 
+        interiorStatus: interiorStatus, 
+        isExpired: expired, 
+        currentMonth: currentMonth, 
+        isThreeMonth: threeMonth, 
+        isCoupon: isCoupon,
+        todayWashes:todayWashes,
+        todayInStatus:todayInStatus,
+      }
+      res.json(returnData);
     } else {
       res.json({
         status: false,
