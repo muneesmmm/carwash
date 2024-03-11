@@ -7,7 +7,7 @@ const customerSchema = new mongoose.Schema({
     vehicles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' }],
     paymentType: {
         type: String,
-        enum: ['online', 'offline'], // Add other package options as needed
+        enum: ['CASH', 'BANK','PAY_LATER'],
     },
     selectedPackage:{ type: mongoose.Schema.Types.ObjectId, ref: 'Package' }
 });

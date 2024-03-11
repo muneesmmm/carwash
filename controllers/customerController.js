@@ -226,7 +226,8 @@ async function getCustomer(req, res) {
           $gte: todayStart, // Greater than or equal to the start of the day
           $lte: todayEnd // Less than or equal to the end of the day
         },
-        washType: 'Wash' // Optionally filter by wash type
+        washType: 'Wash', // Optionally filter by wash type
+        vehicle: vehicle._id 
       }).exec();
       if (todayWashes.length > 0) {
         todayWashStatus = false;
@@ -239,7 +240,8 @@ async function getCustomer(req, res) {
           $gte: todayStart, // Greater than or equal to the start of the day
           $lte: todayEnd // Less than or equal to the end of the day
         },
-        washType: 'Interior' // Optionally filter by wash type
+        washType: 'Interior', // Optionally filter by wash type
+        vehicle: vehicle._id
       }).exec();
       if (washedTodayInterior.length > 0) {
         todayIntStatus = false;
@@ -292,7 +294,7 @@ async function getCustomers(req, res) {
   }
 }
 async function createAndUpdatePackage(req, res) {
-  const { userId, newPlanId } = req.body
+  const { userId, newPlanId , paymentType } = req.body
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -330,6 +332,7 @@ async function createAndUpdatePackage(req, res) {
 
     // Update the user's selected package ID with the ID of the new package
     user.selectedPackage = newPackage._id;
+    user.paymentType = paymentType;
     await user.save({ session });
 
     await session.commitTransaction();
