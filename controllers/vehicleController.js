@@ -98,7 +98,7 @@ async function coupenWash(req, res) {
         staff,
         washDate: currentDateTime, // Use provided washDate or current date/time
         washType: "Wash",
-        packageetil
+        package
       });
 
       // Save the transaction to the database
