@@ -102,6 +102,7 @@ app.post("/get-plans-list", planController.getPlanByNumberOfVehicle);
 app.post("/update-plans", planController.updatePlan);
 app.post("/get-plan/:id", planController.getPlanById);
 app.post("/get-package/:id", packageController.getPackageById);
+app.post("/update-selected-plan", packageController.updatePlan);
 app.post("/get-customer-packages/:customer", packageController.getPackageByCustomerId);
 app.post("/get-package", packageController.getPackages);
 app.post("/get-customer/:number", customerController.getCustomer);

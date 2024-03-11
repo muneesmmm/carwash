@@ -139,7 +139,13 @@ async function getCustomerById(req, res) {
     // Find the existing user by ID along with associated vehicles
     const customer = await Customer.findById(userId).populate(
       "vehicles"
-    );
+    ).populate({
+      path: "selectedPackage",
+      populate: {
+        path: "plan",
+        model: "Plan", // Replace with your Vehicle model name
+      }
+    });
 
     if (!customer) {
       return res.status(404).json({ message: "User not found" });
