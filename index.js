@@ -9,6 +9,7 @@ const categoryController = require("./controllers/categoryController");
 const transactionController = require("./controllers/transactionController");
 const vehicleController = require("./controllers/vehicleController");
 const customerController = require("./controllers/customerController");
+const orderController = require("./controllers/orderController");
 const planController = require("./controllers/planController");
 const packageController = require("./controllers/packageController"); 
 const dashboardController = require("./controllers/dashboardController"); 
@@ -130,9 +131,11 @@ app.post('/sendSMS', (req, res) => {
       console.error('Error sending message:', error);
       res.status(500).send('Failed to send message');
     });
-});
+  });
 
 
-app.listen(port, () => {
+  app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+app.post("/get-orders", orderController.getOrders);
+app.post("/get-staff-orders", orderController.getOrderByStaffId);
