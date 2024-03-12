@@ -3,13 +3,14 @@ const Customer = require("../modals/customerModel");
 const Plan = require("../modals/planModel");
 const WashHistory = require('../modals/washHistory')
 const Package = require("../modals/packageModel");
+const Order = require("../modals/ordersModel");
 const { mongoose, ObjectId } = require("mongoose");
 async function addCustomer(req, res) {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     // Extract user and vehicles data from the request body
-    const { user, vehicles, selectedPlan, paymentType } = req.body;
+    const { user, vehicles, selectedPlan, paymentType, staffId } = req.body;
 
     // Create a new customer
     const newUser = new Customer({
@@ -18,6 +19,7 @@ async function addCustomer(req, res) {
       phone: user.phone,
       paymentType,
     });
+
     // Create an array to store the created vehicles
     const createdVehicles = [];
 
@@ -33,11 +35,15 @@ async function addCustomer(req, res) {
       createdVehicles.push(newVehicle);
       newUser.vehicles.push(newVehicle._id);
     }
+
     await newUser.save({ session });
+
+    // Create a package for the user
     const existingPlan = await Plan.findById(selectedPlan);
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + existingPlan.duration);
+
     const newPackage = new Package({
       customer: newUser._id,
       plan: selectedPlan,
@@ -46,14 +52,28 @@ async function addCustomer(req, res) {
       startDate,
       endDate,
     });
+
     await newPackage.save({ session });
+
     // Link the package to the user (if needed)
     newUser.selectedPackage = newPackage._id;
     await newUser.save({ session });
 
+    // Create an order for the user
+    const newOrder = new Order({
+      customer: newUser._id,
+      package: newPackage._id,
+      staffId,
+      orderDate: new Date(),
+    });
+
+    await newOrder.save({ session });
+
     await session.commitTransaction();
     session.endSession();
-    res.json({ user: newUser, vehicles: createdVehicles });
+
+    // Respond with the newly created user, vehicles, and order
+    res.json({ user: newUser, vehicles: createdVehicles, order: newOrder });
   } catch (error) {
     console.error("Error adding customer:", error);
     await session.abortTransaction();
@@ -61,6 +81,7 @@ async function addCustomer(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
 
 
 // API endpoint to add a car for an existing user
