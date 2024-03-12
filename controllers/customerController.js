@@ -63,7 +63,7 @@ async function addCustomer(req, res) {
     const newOrder = new Order({
       customer: newUser._id,
       package: newPackage._id,
-      staffId,
+      staff: staffId,
       orderDate: new Date(),
     });
 
