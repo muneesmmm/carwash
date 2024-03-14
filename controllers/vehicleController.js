@@ -185,6 +185,7 @@ async function getVehiclesToWash(req, res) {
         model: "Vehicle", // Replace with your Vehicle model name
       },
     })
+    .sort({ washDate: 1 })
     if (packages) {
       const vehicles = packages.reduce((result, pack) => {
         if (pack.customer && pack.customer.vehicles) {
@@ -247,7 +248,7 @@ async function getWashesByStaffId(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      }).sort({ washDate: -1 });
+      }).sort({ washDate: 1 });
 
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
@@ -299,7 +300,7 @@ async function getWashesByDateForStaff(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      });
+      }).sort({ _id: -1 })
 
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
@@ -346,7 +347,7 @@ async function getWashesByDateForCustomer(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      });
+      }).sort({ _id: -1 });
 
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record
@@ -400,7 +401,7 @@ async function getWashes(req, res) {
           path: "owner",
           model: "Customer", // Replace with your Vehicle model name
         }
-      });
+      }).sort({ _id: -1 })
 
     if (washes && washes.length > 0) {
       // Map over the wash history data and format the time for each record

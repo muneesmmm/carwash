@@ -16,7 +16,7 @@ async function getOrders(req, res) {
         path: "vehicles",
         model: "Vehicle", // Replace with your Vehicle model name
       },
-    })
+    }).sort({_id:-1})
     if (existingOrders) {
       res.status(201).json({ message: "success", data: existingOrders ,status:true});
       return;
@@ -44,7 +44,7 @@ async function getOrderById(req, res) {
         path: "vehicles",
         model: "Vehicle", // Replace with your Vehicle model name
       },
-    })
+    }).sort({_id:-1})
     if (existingOrders) {
       res.status(201).json({ message: "success", data: existingOrders });
       return;
@@ -72,7 +72,7 @@ async function getOrderByStaffId(req, res) {
         path: "vehicles",
         model: "Vehicle", // Replace with your Vehicle model name
       },
-    })
+    }).sort({_id:-1})
     if (existingOrders) {
       res.status(201).json({ message: "success", data: existingOrders });
       return;

@@ -312,7 +312,9 @@ async function getCustomers(req, res) {
           model: "Plan", // Replace with your Vehicle model name
         }
       })
-      .exec();
+      .sort({_id:-1})
+      .exec()
+      ;
     // Generate a new JWT token using the helper function
     res.json({ message: "Registered Customer", customer });
   } catch (error) {
@@ -321,7 +323,7 @@ async function getCustomers(req, res) {
   }
 }
 async function createAndUpdatePackage(req, res) {
-  const { userId, newPlanId , paymentType } = req.body
+  const { userId, newPlanId , paymentType , staffId } = req.body
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -361,7 +363,14 @@ async function createAndUpdatePackage(req, res) {
     user.selectedPackage = newPackage._id;
     user.paymentType = paymentType;
     await user.save({ session });
+    const newOrder = new Order({
+      customer: user._id,
+      package: newPackage._id,
+      staff: staffId,
+      orderDate: new Date(),
+    });
 
+    await newOrder.save({ session });
     await session.commitTransaction();
     session.endSession();
     res.json({
