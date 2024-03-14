@@ -379,7 +379,31 @@ async function createAndUpdatePackage(req, res) {
     throw error;
   }
 }
+async function updatePayment(req, res) {
+  try {
+    const { _id, paymentType } = req.body;
 
+    // Find the plan by ID and update it
+    // const numberOfDays = getNumberOfDays(duration);
+    const updatedPayment = await Customer.findOneAndUpdate(
+      { _id }, // Filter
+      { $set: { 
+          paymentType
+        }
+      }, // Update
+      { new: true } // To return the updated document
+    );
+
+    if (!updatedPayment) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+
+    res.status(200).json({ message: "Plan updated successfully", updatedPayment });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update plan" });
+  }
+}
 module.exports = {
   addCustomer,
   addCar,
@@ -387,7 +411,8 @@ module.exports = {
   getCustomerById,
   getCustomer,
   getCustomers,
-  createAndUpdatePackage
+  createAndUpdatePackage,
+  updatePayment
 };
 async function getVehicleByNumber(number) {
   try {

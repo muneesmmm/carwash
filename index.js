@@ -139,3 +139,4 @@ app.post('/sendSMS', (req, res) => {
 });
 app.post("/get-orders", orderController.getOrders);
 app.post("/get-staff-orders", orderController.getOrderByStaffId);
+app.post("/update-payment-status", customerController.updatePayment);
