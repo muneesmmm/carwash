@@ -326,7 +326,7 @@ async function getCustomers(req, res) {
     //   customersWithStaffName.push(customerWithStaffName);
     // }
 
-    res.json({ message: "Registered Customers", customers: customers});
+    res.json({ message: "Registered Customers", customers});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching customers" });
