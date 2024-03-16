@@ -426,6 +426,39 @@ async function getWashes(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
+async function updateVehicle(req, res) {
+  try {
+    const {
+      vehicleId,
+      updatedVehicleNumber,
+      updatedType
+    } = req.body;
+
+    // Find the vehicle by ID
+    const vehicle = await Vehicle.findById(vehicleId);
+
+    if (!vehicle) {
+      return res.status(200).json({ message: "Vehicle not found",status:false });
+    }
+
+    // Update vehicle properties if provided
+    if (updatedVehicleNumber) {
+      vehicle.vehicleNumber = updatedVehicleNumber;
+    }
+    if (updatedType) {
+      vehicle.type = updatedType;
+    }
+
+    // Save the updated vehicle to the database
+    await vehicle.save();
+
+    res.status(200).json({ message: "Vehicle updated successfully" ,status:true});
+  } catch (error) {
+    console.error(error);
+    res.status(200).json({ message: "Failed to update vehicle",status:false });
+  }
+}
+
 module.exports = {
   addVehicle,
   getVehicle,
@@ -439,7 +472,8 @@ module.exports = {
   getVehiclesToWash,
   getWashesByDateForStaff,
   getWashesByDateForCustomer,
-  coupenWash
+  coupenWash,
+  updateVehicle
 };
 async function checkStatusAndNotify(package) {
   try {

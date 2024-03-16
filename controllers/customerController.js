@@ -301,27 +301,38 @@ async function getCustomer(req, res) {
 }
 async function getCustomers(req, res) {
   try {
-    // Find the user in the database
-    const customer = await Customer.find()
-      .populate("vehicles")
-      .populate("selectedPackage")
+    const customers = await Customer.find()
+      .populate('vehicles')
+      .populate('selectedPackage')
       .populate({
-        path: "selectedPackage",
+        path: 'selectedPackage',
         populate: {
-          path: "plan",
-          model: "Plan", // Replace with your Vehicle model name
+          path: 'plan',
+          model: 'Plan' // Replace with your Plan model name
         }
       })
-      .sort({_id:-1})
-      .exec()
-      ;
-    // Generate a new JWT token using the helper function
-    res.json({ message: "Registered Customer", customer });
+      .sort({_id: -1})
+      .exec();
+
+    // const customersWithStaffName = [];
+
+    // for (const customer of customers) {
+    //   // Find the order for the current customer
+    //   const order = await Order.findOne({ customer: customer._id }).populate('staff', 'name').exec();
+
+    //   // Set the staff name for the current customer
+    //   const customerWithStaffName = { ...customer.toObject(), staffName: order ? order.staff.name : "No Staff Assigned" };
+
+    //   customersWithStaffName.push(customerWithStaffName);
+    // }
+
+    res.json({ message: "Registered Customers", customers: customers});
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "No Customer" });
+    res.status(500).json({ message: "Error fetching customers" });
   }
 }
+
 async function createAndUpdatePackage(req, res) {
   const { userId, newPlanId , paymentType , staffId } = req.body
   const session = await mongoose.startSession();

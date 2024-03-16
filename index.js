@@ -24,7 +24,7 @@ const port = 8080;
 app.use(
   cors({
     origin: "https://admin.wecarecarwash.in", // Replace with your frontend's origin URL
-    allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
+        allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
 app.use((req, res, next) => {
@@ -141,4 +141,5 @@ app.post("/get-orders", orderController.getOrders);
 app.post("/get-staff-orders", orderController.getOrderByStaffId);
 app.post("/update-payment-status", customerController.updatePayment);
 app.post("/total-amount", orderController.getTotalAmountByPaymentType);
+app.post("/update-vehicle", vehicleController.updateVehicle);
 
