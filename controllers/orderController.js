@@ -1,4 +1,7 @@
 const Orders = require("../modals/ordersModel");
+const Customer = require('../modals/customerModel');
+const Package = require('../modals/packageModel');
+const Plan = require('../modals/planModel');
 async function getOrders(req, res) {
   try {
     const existingOrders = await Orders.find()
@@ -82,9 +85,48 @@ async function getOrderByStaffId(req, res) {
     res.status(500).json({ message: "Plan not found" });
   }
 }
+async function getTotalAmountByPaymentType(req, res) {
+  try {
+    const totalAmounts = await Customer.aggregate([
+      {
+        $lookup: {
+          from: "packages", // Name of the Package collection
+          localField: "_id",
+          foreignField: "customer",
+          as: "package"
+        }
+      },
+      {
+        $unwind: "$package"
+      },
+      {
+        $lookup: {
+          from: "plans", // Name of the Plan collection
+          localField: "package.plan",
+          foreignField: "_id",
+          as: "plan"
+        }
+      },
+      {
+        $unwind: "$plan"
+      },
+      {
+        $group: {
+          _id: "$paymentType",
+          totalAmount: { $sum: "$plan.price" }
+        }
+      }
+    ]);
 
+    res.json({ status: true, totalAmounts });
+  } catch (error) {
+    console.error("Error getting total amount by payment type:", error);
+    res.status(500).json({ status: false, error: error.message });
+  }
+}
 module.exports = {
   getOrders,
   getOrderById,
-  getOrderByStaffId
+  getOrderByStaffId,
+  getTotalAmountByPaymentType
 };

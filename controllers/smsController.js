@@ -8,7 +8,7 @@ const client = require('twilio')(accountSid, authToken);
 // Function to send SMS
 async function sendSMS(to, washHistory) {
   try {
-    let message = 'Dear Customer, your remaining washes and interiors are now 0. Please update your plan.';
+    let message = 'We Care Cleaning Solution\n------------------------\nDear Customer, your remaining washes and interiors are now 0. Please update your plan.';
     if (washHistory.length > 0) {
       message += '\n\nPrevious Wash History:\n';
       washHistory.forEach(wash => {
