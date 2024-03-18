@@ -11,7 +11,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "staff",
   },
-  location:String
+  location:String,
+  isActive:{
+    type:Boolean,
+    default:true
+  }
   // avatar: {
   //   type: String,
   //   default: "default-avatar.png", // Set a default avatar file name if desired

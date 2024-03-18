@@ -127,7 +127,7 @@ async function loginUser(req, res) {
 async function getUsers(req, res) {
   try {
     // Find the user in the database
-    const user = await User.find();
+    const user = await User.find({ isActive: true });
     // Generate a new JWT token using the helper function
     res.json({ message: "Registered User", user });
   } catch (error) {
@@ -151,12 +151,19 @@ async function deleteUserbyId(req, res) {
   try {
     // Find the user in the database
     const { id } = req.body;
-    const user = await User.deleteOne({'_id':id});
+    const user = await User.findOneAndUpdate(
+      { _id: id },
+      { $set: { isActive: false } }
+    );
 
-    res.json({ message: "User delete success", });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User deactivated successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "No Users" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 async function updatePayment(req, res) {

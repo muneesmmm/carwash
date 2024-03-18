@@ -17,16 +17,15 @@ async function addVehicle(req, res) {
     const vehicle = new Vehicle({
       vehicleNumber,
       type,
-      package,
       owner
     });
     // Save the transaction to the database
     await vehicle.save();
 
-    res.status(200).json({ message: "Vehicle registered successfully" });
+    res.status(200).json({ message: "Vehicle registered successfully",status:true });
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: "Failed to register Vehicle" });
+    res.status(200).json({ message: "Failed to register Vehicle",status:false });
   }
 }
 async function addWash(req, res) {
