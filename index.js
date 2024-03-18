@@ -27,6 +27,7 @@ app.use(
         allowedHeaders: ["Content-Type", "Authorization"], // Add any additional headers you want to allow
   })
 );
+
 app.use((req, res, next) => {
 res.setHeader('Access-Control-Allow-Origin', 'https://admin.wecarecarwash.in');
 res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
