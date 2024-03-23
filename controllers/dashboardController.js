@@ -14,7 +14,7 @@ async function getDashBoardData(req, res) {
         const washHistoryCount = await WashHistory.countDocuments();
 
         // Get the length of User collection
-        const userCount = await User.countDocuments();
+        const userCount = await User.countDocuments({ isActive: true });
         res.status(201).json({
             message: "success", data: {
                 vehicleCount,
