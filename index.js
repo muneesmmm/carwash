@@ -59,6 +59,7 @@ app.post(
 );
 
 app.post("/login", userController.loginUser);
+app.post("/admin-login", userController.adminLogin);
 app.post("/get-users", userController.getUsers);
 app.post("/getuser", userController.getUserbyId);
 app.post("/delete-user", userController.deleteUserbyId);

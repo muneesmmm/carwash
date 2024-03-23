@@ -111,17 +111,50 @@ async function loginUser(req, res) {
 
     // If user not found or password doesn't match, return an error
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      res.status(200).json({ message: "Invalid username or password",status: false  });
+      res.status(200).json({ message: "Invalid username or password", status: false });
+      return;
+    }
+
+    // Check if the user is active
+    if (!user.isActive) {
+      res.status(200).json({ message: "User account is not active", status: false });
       return;
     }
 
     // Generate a new JWT token using the helper function
     const token = authHelpers.generateToken(user._id);
 
-    res.json({ message: "Login successful", token, user,status: true  });
+    res.json({ message: "Login successful", token, user, status: true });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to login",status: false  });
+    res.status(500).json({ message: "Failed to login", status: false });
+  }
+}
+async function adminLogin(req, res) {
+  try {
+    const { username, password } = req.body;
+    // Find the admin in the database
+    const admin = await User.findOne({ username });
+
+    // If admin not found or password doesn't match, return an error
+    if (!admin || !(await bcrypt.compare(password, admin.password))) {
+      res.status(200).json({ message: "Invalid admin username or password", status: false });
+      return;
+    }
+
+    // Check if the admin is active
+    if (!admin.isActive) {
+      res.status(200).json({ message: "Admin account is not active", status: false });
+      return;
+    }
+
+    // Generate a new JWT token using the helper function
+    const token = authHelpers.generateToken(admin._id);
+
+    res.json({ message: "Admin login successful", token, admin, status: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to login as admin", status: false });
   }
 }
 async function getUsers(req, res) {
@@ -210,7 +243,8 @@ module.exports = {
   updateAvatar,
   updatePayment,
   getUserbyId,
-  deleteUserbyId
+  deleteUserbyId,
+  adminLogin
 };
 // async function generateStaffID() {
 //   try {
