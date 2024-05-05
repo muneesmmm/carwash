@@ -23,9 +23,15 @@ exports.uploadImage = async (req, res) => {
     }
     try {
       const plateNumber = await processImage(req.file.path);
-      res.json({ plateNumber });
+      if (plateNumber) {
+        res.json({ plateNumber,status:true });
+      } else {
+        res.json({ plateNumber:'Plate not found',status:false });
+
+      }
       fs.unlinkSync(req.file.path); // Delete the uploaded file
     } catch (error) {
+      fs.unlinkSync(req.file.path); // Delete the uploaded file
       console.error('Error processing image:', error);
       res.status(500).send('Error processing image.');
     }

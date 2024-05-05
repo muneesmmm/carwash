@@ -20,5 +20,5 @@ exports.processImage = async (imagePath) => {
     });
 
   const data = await response.json();
-  return data.results[0]?.plate || 'Plate not found';
+  return data.results[0]?.plate || null;
 };
