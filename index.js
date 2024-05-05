@@ -17,6 +17,8 @@ const uploadHelper = require("./helpers/s3Upload");
 const cors = require("cors");
 const emailController = require("./controllers/emailController");
 const smsController = require("./controllers/smsController");
+const  {uploadImage} = require('./controllers/imageController');
+
 require("dotenv").config();
 const app = express();
 const port = 8080;
@@ -144,4 +146,5 @@ app.post("/get-staff-orders", orderController.getOrderByStaffId);
 app.post("/update-payment-status", customerController.updatePayment);
 app.post("/total-amount", orderController.getTotalAmountByPaymentType);
 app.post("/update-vehicle", vehicleController.updateVehicle);
+app.post('/upload-image', uploadImage);
 
