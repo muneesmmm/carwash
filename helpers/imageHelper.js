@@ -13,7 +13,7 @@ exports.processImage = async (imagePath) => {
     const response = await fetch('https://api.platerecognizer.com/v1/plate-reader/', {
       method: 'POST',
       headers: {
-        Authorization: 'Token 0e9f2a5a6cf1a34de6817cc72f6824cf4f265aa5', // Replace with your actual API token
+        Authorization: 'Token 92c33af5234df67ff1737c9f8f9743a271aa5148', // Replace with your actual API token
         ...formData.getHeaders(), // Include headers from FormData object
       },
       body: formData,
